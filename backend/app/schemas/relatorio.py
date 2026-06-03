@@ -39,6 +39,10 @@ class ItemPendente(BaseModel):
     valor_centavos: int
     vencimento: str | None
     atrasado: bool
+    # Dias até o vencimento (negativo = já passou). vence_em_breve = a até 3
+    # dias do vencimento e ainda não atrasado.
+    dias_para_vencer: int | None = None
+    vence_em_breve: bool = False
     # IDs para confirmar o recebimento direto da pendência.
     aluguel_id: uuid.UUID | None = None
     rateio_id: uuid.UUID | None = None
@@ -50,6 +54,7 @@ class DashboardOut(BaseModel):
     total_em_aberto_centavos: int
     qtd_itens_abertos: int
     qtd_itens_atrasados: int
+    qtd_itens_proximos: int = 0
     pendencias: list[ItemPendente]
 
 
