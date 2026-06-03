@@ -1,0 +1,971 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800&family=Poppins:wght@400;500;600&display=swap");
+@import "./theme.css";
+
+/* Textos em destaque/negrito usam Inter Bold; o restante usa Poppins. */
+h1,
+h2,
+h3,
+.screen-header h1,
+.section-title,
+.stat .value,
+.list-item .li-title,
+.list-item .li-amount,
+.month-nav .month-label,
+.btn,
+.tag {
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+input,
+select {
+  font-family: inherit;
+  font-size: 16px;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* App container: telefone centralizado no desktop */
+.app-frame {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  min-height: 100%;
+  background: var(--bg);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Cabeçalho colorido */
+.screen-header {
+  background: var(--primary);
+  color: var(--white);
+  padding: 56px 24px 90px;
+  border-bottom-left-radius: var(--radius-lg);
+  border-bottom-right-radius: var(--radius-lg);
+}
+
+.screen-header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.back-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  color: var(--white);
+  margin-bottom: 14px;
+}
+
+.back-btn:active {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.screen-header .subtitle {
+  margin-top: 4px;
+  opacity: 0.9;
+  font-size: 14px;
+}
+
+/* Conteúdo que "sobe" sobre o header */
+.screen-body {
+  flex: 1;
+  padding: 0 20px calc(var(--nav-h) + 32px);
+  margin-top: -64px;
+}
+
+/* Cartão branco genérico */
+.card {
+  background: var(--card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: 18px;
+}
+
+/* Par de mini-cards (Recebido x A receber) */
+.stat-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.stat {
+  background: var(--card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: 16px;
+}
+
+.stat .label {
+  font-size: 13px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stat .value {
+  margin-top: 8px;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.stat .value.is-accent {
+  color: var(--accent);
+}
+
+/* Título de seção */
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 24px 4px 12px;
+}
+
+/* Item de lista (pendência / transação) */
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.badge-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  background: var(--secondary);
+  color: var(--white);
+  font-size: 20px;
+}
+
+.badge-icon.is-accent {
+  background: var(--accent);
+  color: var(--white);
+}
+
+/* Item de lista clicável (tela Novo) */
+.list-item-btn {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.list-item-btn:active {
+  filter: brightness(0.98);
+}
+
+/* Grupo de terreno (pasta de casas) */
+.terreno-group {
+  background: var(--card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+
+.terreno-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.terreno-badge {
+  background: var(--primary);
+  color: var(--white);
+}
+
+.terreno-head .li-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.terreno-head .li-title {
+  font-family: "Inter", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.terreno-head .li-sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.terreno-count {
+  min-width: 26px;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--secondary-tint);
+  color: var(--primary);
+  font-family: "Inter", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  display: grid;
+  place-items: center;
+}
+
+.chevron-toggle {
+  color: var(--muted);
+  display: grid;
+  place-items: center;
+  transition: transform 0.2s ease;
+}
+
+.chevron-toggle.aberto {
+  transform: rotate(90deg);
+}
+
+.terreno-body {
+  padding: 0 10px 10px;
+}
+
+.casa-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  margin-top: 8px;
+  cursor: pointer;
+  text-align: left;
+  color: var(--muted);
+}
+
+.casa-row:active {
+  filter: brightness(0.98);
+}
+
+.casa-row .badge-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+}
+
+.casa-row .li-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.casa-row .li-title {
+  font-family: "Inter", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.casa-row .li-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.terreno-vazio {
+  padding: 14px 4px 6px;
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* Visualização (somente leitura) de morador */
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.info-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 2px;
+  border-bottom: 1px solid var(--line);
+}
+
+.info-linha:last-child {
+  border-bottom: none;
+}
+
+.info-rotulo {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.info-valor {
+  font-family: "Inter", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--ink);
+  text-align: right;
+}
+
+.info-valor.is-vazio {
+  font-weight: 500;
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* Abas (detalhe da casa) */
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  background: var(--bg);
+  padding: 6px;
+  border-radius: 999px;
+  margin-bottom: 16px;
+}
+
+.tabs button {
+  padding: 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.tabs button.active {
+  background: var(--white);
+  color: var(--primary);
+  box-shadow: var(--shadow-soft);
+}
+
+/* Variantes de tag */
+.tag-neutral {
+  background: var(--line);
+  color: var(--ink-soft);
+}
+
+.tag-warn {
+  background: rgba(245, 158, 11, 0.16);
+  color: #b45309;
+}
+
+.badge-icon.is-warn {
+  background: #f59e0b;
+  color: var(--white);
+}
+
+/* Botão pequeno (ações em linha) */
+.btn-mini {
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  background: var(--secondary-tint);
+  color: var(--secondary);
+  white-space: nowrap;
+}
+
+.btn-mini.is-accent {
+  background: var(--primary);
+  color: var(--white);
+}
+
+.btn-mini.is-danger {
+  background: var(--accent);
+  color: var(--white);
+}
+
+/* Excluir morador */
+.btn-excluir {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+  background: transparent;
+}
+
+.excluir-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  text-align: center;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+.btn-mini:disabled {
+  opacity: 0.5;
+}
+
+.saida-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.saida-row input {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  font-size: 15px;
+}
+
+/* Botão de confirmar recebimento */
+.li-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.confirm-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  background: var(--secondary-tint);
+  color: var(--secondary);
+  border: 1px solid transparent;
+}
+
+.confirm-btn.is-paid {
+  background: var(--secondary);
+  color: var(--white);
+}
+
+.confirm-btn:disabled {
+  opacity: 0.5;
+}
+
+/* Resumo do rateio de uma conta */
+.rateio-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rateio-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+}
+
+.rateio-admin {
+  background: var(--secondary-tint);
+}
+
+.rateio-admin strong {
+  color: var(--secondary);
+}
+
+.rateio-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+  padding: 14px;
+  border-top: 1px solid var(--line);
+  font-size: 16px;
+  color: var(--ink);
+}
+
+.rateio-total strong {
+  color: var(--primary);
+  font-size: 18px;
+}
+
+.list-item .li-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.list-item .li-title {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.list-item .li-sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.list-item .li-amount {
+  font-weight: 800;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.li-amount.is-accent {
+  color: var(--accent);
+}
+
+/* Tag de status */
+.tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(255, 87, 34, 0.14);
+  color: var(--accent);
+}
+
+/* Botões */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 16px;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 700;
+  background: var(--primary);
+  color: var(--white);
+  transition: filter 0.15s ease;
+}
+
+.btn:active {
+  filter: brightness(0.94);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-accent {
+  background: var(--accent);
+}
+
+.btn-ghost {
+  background: var(--secondary-tint);
+  color: var(--primary);
+}
+
+/* Campos de formulário */
+.field {
+  margin-bottom: 18px;
+}
+
+.field label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--ink-soft);
+}
+
+.field input,
+.field select {
+  width: 100%;
+  padding: 15px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: var(--white);
+  color: var(--ink);
+}
+
+.field input:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+/* Estados */
+.empty,
+.loading {
+  text-align: center;
+  color: var(--muted);
+  padding: 40px 16px;
+}
+
+/* Quando a mensagem é o primeiro item da tela, não pode tapar o cabeçalho */
+.screen-body > .empty:first-child,
+.screen-body > .loading:first-child,
+.screen-body > .error-text:first-child {
+  margin-top: 96px;
+}
+
+.error-text {
+  color: var(--accent);
+  font-size: 14px;
+  margin-top: 8px;
+  text-align: center;
+}
+
+/* Barra inferior */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: var(--maxw);
+  height: var(--nav-h);
+  background: var(--white);
+  box-shadow: 0 -6px 24px rgba(48, 56, 65, 0.08);
+  border-top-left-radius: 22px;
+  border-top-right-radius: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 8px;
+  z-index: 20;
+}
+
+.nav-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  flex: 1;
+}
+
+.nav-btn.active {
+  color: var(--primary);
+}
+
+.nav-btn .nav-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+/* Modal / bottom sheet */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(48, 56, 65, 0.45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 50;
+  animation: fade-in 0.15s ease;
+}
+
+.modal-sheet {
+  width: 100%;
+  max-width: var(--maxw);
+  background: var(--white);
+  border-top-left-radius: var(--radius-lg);
+  border-top-right-radius: var(--radius-lg);
+  padding: 8px 20px 28px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slide-up 0.22s ease;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  background: var(--white);
+  padding: 12px 0 14px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.modal-header::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--line);
+}
+
+.modal-close {
+  color: var(--muted);
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Formulário */
+.field textarea {
+  width: 100%;
+  padding: 15px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: var(--white);
+  color: var(--ink);
+  font-size: 16px;
+  resize: vertical;
+  min-height: 72px;
+}
+
+.field textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.field label.label-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  line-height: 0;
+  border-radius: 50%;
+  color: var(--muted);
+  background: transparent;
+  flex-shrink: 0;
+}
+
+.info-btn svg {
+  display: block;
+}
+
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  line-height: 1.45;
+  margin-bottom: 14px;
+}
+
+.alert svg {
+  color: var(--muted);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.field .hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+  font-weight: 400;
+}
+
+.input-prefix {
+  position: relative;
+}
+
+.input-prefix span {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.input-prefix input {
+  padding-left: 42px;
+}
+
+/* Checkbox em linha */
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 4px;
+  margin-bottom: 12px;
+}
+
+.check-row input {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--primary);
+}
+
+.check-row label {
+  margin: 0;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+/* Segmento (ex.: Água/Luz) */
+.segment {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  background: var(--secondary-tint);
+  padding: 6px;
+  border-radius: 999px;
+}
+
+.segment button {
+  padding: 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.segment button.active {
+  background: var(--white);
+  color: var(--primary);
+  box-shadow: var(--shadow-soft);
+}
+
+.form-actions {
+  margin-top: 8px;
+}
+
+/* Banner de sucesso */
+.toast {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: calc(var(--maxw) - 32px);
+  background: var(--primary);
+  color: var(--white);
+  padding: 14px 18px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  box-shadow: var(--shadow-card);
+  z-index: 80;
+  animation: fade-in 0.15s ease;
+}
+
+/* Botão central (+) */
+.nav-fab {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--white);
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+  box-shadow: 0 8px 20px rgba(255, 87, 34, 0.4);
+  margin-top: -28px;
+}
+
+/* Toggle de competência (mês) */
+.month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--card);
+  border-radius: 999px;
+  box-shadow: var(--shadow-soft);
+  padding: 8px 10px;
+  margin-top: 16px;
+}
+
+.month-nav button {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  font-size: 20px;
+  color: var(--primary);
+  background: var(--secondary-tint);
+}
+
+.month-nav .month-label {
+  font-weight: 700;
+}
+
+.month-nav .month-label::first-letter {
+  text-transform: uppercase;
+}
