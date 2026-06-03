@@ -26,6 +26,14 @@ família.
 - A única automação desta etapa é o **cálculo do rateio** das contas de água/luz por
   cabeça (para não fazer a conta no papel).
 
+### Princípios de produto
+- **Foco em visualização:** "Casa em Dia" é, antes de tudo, um app de **visualização de
+  informação**. O princípio orientador é: **quanto mais informação relevante estiver
+  exposta e visível ao usuário, melhor**. As telas DEVEM priorizar mostrar o máximo de
+  informação útil de forma clara e organizada — em vez de esconder dados atrás de
+  cliques, modais ou etapas desnecessárias —, sempre preservando a legibilidade e o
+  layout mobile-first limpo.
+
 ### Glossário
 - **Terreno (lote):** área onde ficam as casas; compartilha um relógio de água e um de luz.
 - **Casa:** imóvel alugado por inteiro para uma família.
