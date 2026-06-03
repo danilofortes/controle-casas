@@ -25,7 +25,10 @@ export type IconName =
   | "info"
   | "edit"
   | "menu"
-  | "grid";
+  | "grid"
+  | "wrench"
+  | "hammer"
+  | "landmark";
 
 interface IconProps {
   name: IconName;
@@ -233,6 +236,30 @@ export function Icon({ name, size = 24, color, style }: IconProps) {
           <rect x="14" y="3" width="7" height="7" rx="1" />
           <rect x="14" y="14" width="7" height="7" rx="1" />
           <rect x="3" y="14" width="7" height="7" rx="1" />
+        </svg>
+      );
+    case "wrench":
+      return (
+        <svg {...common}>
+          <path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3 17.8 6.2 21l6.3-6.3a4 4 0 0 0 5.2-5.4l-2.5 2.5-2.5-.7-.7-2.5z" />
+        </svg>
+      );
+    case "hammer":
+      return (
+        <svg {...common}>
+          <path d="M15 12l-8.4 8.4a2.1 2.1 0 0 1-3-3L12 9" />
+          <path d="M17.6 6.4 14 10l-3-3 3.6-3.6a2 2 0 0 1 1.4-.6h2.5a2 2 0 0 1 1.4.6l1.1 1.1a1 1 0 0 1 0 1.4l-1.4 1.4a1 1 0 0 1-1.4 0z" />
+        </svg>
+      );
+    case "landmark":
+      return (
+        <svg {...common}>
+          <line x1="3" y1="22" x2="21" y2="22" />
+          <line x1="6" y1="18" x2="6" y2="11" />
+          <line x1="10" y1="18" x2="10" y2="11" />
+          <line x1="14" y1="18" x2="14" y2="11" />
+          <line x1="18" y1="18" x2="18" y2="11" />
+          <polygon points="12 2 20 7 4 7 12 2" />
         </svg>
       );
   }

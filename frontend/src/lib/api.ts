@@ -172,6 +172,22 @@ export interface CasaRelatorio {
   em_aberto_centavos: number;
 }
 
+export interface AdministradoraItem {
+  conta_id: string;
+  tipo: TipoConta;
+  competencia: string;
+  vencimento: string;
+  valor_centavos: number;
+  terreno_nome: string | null;
+}
+
+export interface AdministradoraRelatorio {
+  agua_centavos: number;
+  luz_centavos: number;
+  total_centavos: number;
+  itens: AdministradoraItem[];
+}
+
 export interface Relatorio {
   competencia: string;
   competencia_formatada: string;
@@ -182,6 +198,7 @@ export interface Relatorio {
     total_em_aberto_centavos: number;
     total_despesas_centavos: number;
   };
+  administradora: AdministradoraRelatorio;
 }
 
 export type TipoConta = "AGUA" | "LUZ";

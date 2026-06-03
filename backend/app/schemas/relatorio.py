@@ -24,11 +24,36 @@ class TotaisRelatorio(BaseModel):
     total_despesas_centavos: int
 
 
+class AdministradoraItem(BaseModel):
+    """Fatia da casa administradora numa conta de água/luz da competência."""
+
+    conta_id: uuid.UUID
+    tipo: str  # "AGUA" | "LUZ"
+    competencia: str
+    vencimento: date
+    valor_centavos: int
+    terreno_nome: str | None = None
+
+
+class AdministradoraRelatorio(BaseModel):
+    """Parte da casa administradora nas contas de água/luz da competência.
+
+    A administradora entra na divisão por cabeça, mas não é cobrada: sua fatia
+    em cada conta é ``valor_total − soma(rateios cobrados)``.
+    """
+
+    agua_centavos: int
+    luz_centavos: int
+    total_centavos: int
+    itens: list[AdministradoraItem] = []
+
+
 class RelatorioOut(BaseModel):
     competencia: str
     competencia_formatada: str
     casas: list[CasaRelatorio]
     totais: TotaisRelatorio
+    administradora: AdministradoraRelatorio
 
 
 class ItemPendente(BaseModel):

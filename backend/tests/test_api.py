@@ -223,6 +223,58 @@ async def test_relatorio_mensal(auth_client):
 
 
 @pytest.mark.asyncio
+async def test_relatorio_total_administradora(auth_client):
+    client = auth_client
+    terreno_id = await _criar_terreno(client)
+    casa1 = await _criar_casa(client, terreno_id, "Casa 1", aluguel=80000)
+    await _add_morador(client, casa1, "A")
+
+    # A administradora entra na contagem de cabeças (1 pessoa), mas não é cobrada.
+    rc = await client.put("/api/config", json={"moradores_administradora": 1})
+    assert rc.status_code == 200, rc.text
+
+    # AGUA 10000 / 2 cabeças (casa1=1, admin=1) -> casa paga 5000, admin 5000.
+    await client.post(
+        "/api/contas",
+        json={
+            "terreno_id": terreno_id,
+            "tipo": "AGUA",
+            "competencia": "2026-06",
+            "valor_total_centavos": 10000,
+            "vencimento": "2026-06-10",
+        },
+    )
+    # LUZ 9000 / 2 cabeças -> casa paga 4500, admin 4500.
+    await client.post(
+        "/api/contas",
+        json={
+            "terreno_id": terreno_id,
+            "tipo": "LUZ",
+            "competencia": "2026-06",
+            "valor_total_centavos": 9000,
+            "vencimento": "2026-06-10",
+        },
+    )
+
+    r = await client.get("/api/relatorio", params={"competencia": "2026-06"})
+    assert r.status_code == 200, r.text
+    admin = r.json()["administradora"]
+    assert admin["agua_centavos"] == 5000
+    assert admin["luz_centavos"] == 4500
+    assert admin["total_centavos"] == 9500
+
+    # Uma linha por conta com fatia administradora (água e luz).
+    itens = admin["itens"]
+    assert len(itens) == 2
+    por_tipo = {i["tipo"]: i for i in itens}
+    assert por_tipo["AGUA"]["valor_centavos"] == 5000
+    assert por_tipo["AGUA"]["vencimento"] == "2026-06-10"
+    assert por_tipo["AGUA"]["terreno_nome"] == "Terreno A"
+    assert por_tipo["LUZ"]["valor_centavos"] == 4500
+    assert por_tipo["AGUA"]["conta_id"]
+
+
+@pytest.mark.asyncio
 async def test_dashboard_pendencias(auth_client):
     client = auth_client
     terreno_id = await _criar_terreno(client)
