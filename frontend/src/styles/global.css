@@ -359,6 +359,65 @@ a {
   font-style: italic;
 }
 
+/* Instalar como app (PWA) */
+.install-hero {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.install-hero img {
+  border-radius: 16px;
+  box-shadow: var(--shadow-soft);
+  flex-shrink: 0;
+}
+
+.install-hero strong {
+  display: block;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 16px;
+  color: var(--ink);
+}
+
+.install-hero span {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.install-cta {
+  margin-bottom: 8px;
+}
+
+.install-os {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 20px 0 8px;
+}
+
+.install-os svg {
+  color: var(--secondary);
+}
+
+.install-steps {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--ink-soft);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.install-steps li {
+  margin-bottom: 6px;
+}
+
 /* Tela de login com logotipo */
 .login-screen {
   padding-top: 40px;
@@ -990,4 +1049,66 @@ a {
 
 .month-nav .month-label::first-letter {
   text-transform: uppercase;
+}
+
+/* ===== Cores das cobranças (verde pago, vermelho atrasado, cinza em dia) ===== */
+/* Paga: fundo verde claro */
+.list-item.cobranca-paga {
+  background: #e8f5e9;
+  box-shadow: none;
+  border: 1px solid #c8e6c9;
+}
+
+.list-item.cobranca-paga .badge-icon {
+  background: #43a047;
+  color: var(--white);
+}
+
+.list-item.cobranca-paga .li-title,
+.list-item.cobranca-paga .li-amount {
+  color: #2e7d32;
+}
+
+.list-item.cobranca-paga .li-sub {
+  color: #4c9a51;
+}
+
+/* Atrasada: fundo vermelho claro */
+.list-item.cobranca-atrasada {
+  background: #fdecea;
+  box-shadow: none;
+  border: 1px solid #f7ccc7;
+}
+
+.list-item.cobranca-atrasada .badge-icon {
+  background: #e53935;
+  color: var(--white);
+}
+
+.list-item.cobranca-atrasada .li-title,
+.list-item.cobranca-atrasada .li-amount {
+  color: #c62828;
+}
+
+.list-item.cobranca-atrasada .li-sub {
+  color: #d05a52;
+}
+
+/* Pendente em dia: fundo branco, visual neutro/cinza */
+.list-item.cobranca-pendente {
+  background: var(--card);
+}
+
+.list-item.cobranca-pendente .badge-icon {
+  background: var(--muted);
+  color: var(--white);
+}
+
+.list-item.cobranca-pendente .li-title,
+.list-item.cobranca-pendente .li-amount {
+  color: var(--ink-soft);
+}
+
+.list-item.cobranca-pendente .li-sub {
+  color: var(--muted);
 }
