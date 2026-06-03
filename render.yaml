@@ -19,4 +19,4 @@ services:
       - key: APP_SESSION_SECRET
         sync: false
       - key: APP_CORS_ORIGINS
-        value: "*"
+        value: "https://controle-casas.vercel.app"
