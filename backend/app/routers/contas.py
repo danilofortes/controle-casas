@@ -3,7 +3,7 @@ import uuid
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import joinedload, selectinload
 
 from app.deps import SessionDep, UsuarioDep
 from app.domain.rateio import CasaParticipante, RateioInvalido, calcular_rateio
@@ -28,7 +28,11 @@ async def _conta_or_404(session: AsyncSession, conta_id: uuid.UUID) -> ContaComp
     stmt = (
         select(ContaCompartilhada)
         .where(ContaCompartilhada.id == conta_id)
-        .options(selectinload(ContaCompartilhada.rateios))
+        .options(
+            # Carrega também a casa de cada rateio para expor o nome (usado, por
+            # ex., na confirmação de exclusão da conta no frontend).
+            selectinload(ContaCompartilhada.rateios).joinedload(RateioConta.casa)
+        )
     )
     conta = await session.scalar(stmt)
     if conta is None:

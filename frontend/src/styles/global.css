@@ -572,6 +572,11 @@ a {
   color: var(--white);
 }
 
+.confirm-btn.is-danger {
+  background: var(--accent-tint);
+  color: var(--accent);
+}
+
 .confirm-btn:disabled {
   opacity: 0.5;
 }
@@ -686,6 +691,80 @@ a {
 .btn-ghost {
   background: var(--secondary-tint);
   color: var(--primary);
+}
+
+/* Ação destrutiva sólida (ex.: confirmar exclusão) */
+.btn-danger {
+  background: var(--accent);
+  color: var(--white);
+}
+
+/* Confirmação de exclusão (modal ConfirmarExclusao) */
+.confirmar-exclusao {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding-bottom: 4px;
+}
+
+.confirmar-descricao {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.confirmar-descricao p {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.confirmar-alerta {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--accent-tint);
+  color: var(--accent);
+}
+
+.confirmar-itens {
+  list-style: none;
+  margin: 0;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--accent-tint);
+  border-radius: var(--radius-md);
+}
+
+.confirmar-itens li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--ink-soft);
+}
+
+.confirmar-itens li svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--accent);
+}
+
+.confirmar-acoes {
+  display: flex;
+  gap: 10px;
+}
+
+.confirmar-acoes .btn {
+  flex: 1;
 }
 
 /* Campos de formulário */
@@ -1230,4 +1309,131 @@ a {
     margin-left: auto;
     margin-right: auto;
   }
+}
+
+/* ============================================================
+   Cabeçalho com botão de menu
+   ============================================================ */
+.header-bar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.header-menu-btn {
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   Faixa de atalhos rápidos (topo da Início, estilo Itaú)
+   ============================================================ */
+.atalhos {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  overflow-x: auto;
+  /* padding-top (não margin) empurra a faixa para abaixo do header laranja,
+     evitando o margin-collapse com o .screen-body (que tem margtop negativo). */
+  padding: 80px 2px 10px;
+  margin-bottom: 16px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.atalhos::-webkit-scrollbar {
+  display: none;
+}
+
+.atalho {
+  flex: 0 0 auto;
+  width: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  background: none;
+  color: var(--ink-soft);
+}
+
+.atalho-icone {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: var(--card);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-soft);
+  transition: filter 0.15s ease;
+}
+
+.atalho:active .atalho-icone {
+  filter: brightness(0.96);
+}
+
+.atalho-label {
+  width: 100%;
+  font-size: 12px;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--ink-soft);
+}
+
+/* ============================================================
+   Menu principal (modal)
+   ============================================================ */
+.menu-grupo {
+  margin-top: 20px;
+}
+
+.menu-grupo:first-child {
+  margin-top: 4px;
+}
+
+.menu-grupo-titulo {
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 4px 10px;
+}
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.menu-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 8px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+.menu-tile .badge-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+}
+
+.menu-tile span {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.menu-tile:active {
+  filter: brightness(0.97);
 }

@@ -39,6 +39,8 @@ class DespesaOut(BaseModel):
     id: uuid.UUID
     terreno_id: uuid.UUID | None
     casa_id: uuid.UUID | None
+    casa_nome: str | None = None
+    terreno_nome: str | None = None
     descricao: str
     categoria: CategoriaDespesa
     valor_centavos: int
@@ -49,3 +51,11 @@ class DespesaOut(BaseModel):
     @property
     def valor_formatado(self) -> str:
         return formatar_brl(self.valor_centavos)
+
+    @classmethod
+    def from_despesa(cls, despesa) -> "DespesaOut":
+        # casa/terreno só estão disponíveis quando carregados via eager load.
+        out = cls.model_validate(despesa)
+        out.casa_nome = getattr(getattr(despesa, "casa", None), "nome", None)
+        out.terreno_nome = getattr(getattr(despesa, "terreno", None), "nome", None)
+        return out

@@ -132,6 +132,7 @@ export interface ItemCobranca {
   tipo: TipoPendencia;
   aluguel_id: string | null;
   rateio_id: string | null;
+  conta_id: string | null;
   competencia: string;
   valor_centavos: number;
   valor_formatado: string;
@@ -203,6 +204,7 @@ export interface Rateio {
   id: string;
   conta_id: string;
   casa_id: string;
+  casa_nome: string | null;
   pessoas_snapshot: number;
   valor_centavos: number;
   pago: boolean;
@@ -234,6 +236,8 @@ export interface Despesa {
   id: string;
   terreno_id: string | null;
   casa_id: string | null;
+  casa_nome: string | null;
+  terreno_nome: string | null;
   descricao: string;
   categoria: CategoriaDespesa;
   valor_centavos: number;

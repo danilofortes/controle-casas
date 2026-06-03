@@ -6,6 +6,7 @@ os.environ.setdefault("APP_SESSION_SECRET", "segredo-de-teste-bem-grande")
 
 import pytest_asyncio  # noqa: E402
 from httpx import ASGITransport, AsyncClient  # noqa: E402
+from sqlalchemy import event  # noqa: E402
 from sqlalchemy.ext.asyncio import (  # noqa: E402
     AsyncSession,
     async_sessionmaker,
@@ -25,6 +26,17 @@ async def engine():
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
+
+    # O SQLite ignora ON DELETE CASCADE a menos que o enforcement de FK esteja
+    # ligado. Como o app usa passive_deletes=True (a cascata é responsabilidade
+    # do banco), ativamos o PRAGMA para que os testes reflitam o comportamento
+    # do Postgres em produção.
+    @event.listens_for(eng.sync_engine, "connect")
+    def _ativar_fk(dbapi_conn, _record):
+        cursor = dbapi_conn.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
+
     async with eng.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield eng
