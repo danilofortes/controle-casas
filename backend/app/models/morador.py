@@ -17,6 +17,9 @@ class Morador(Base, TimestampMixin):
     nome: Mapped[str]
     telefone: Mapped[str | None]
     responsavel: Mapped[bool] = mapped_column(default=False)
+    # Adultos respondem pelo débito da casa; crianças contam na divisão por
+    # cabeça (consumo), mas nunca recebem a cobrança em seu nome.
+    adulto: Mapped[bool] = mapped_column(default=True)
     data_entrada: Mapped[date]
     data_saida: Mapped[date | None]
 
