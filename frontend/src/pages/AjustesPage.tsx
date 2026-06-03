@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../auth/AuthContext";
 import { Alert } from "../components/Alert";
 import { Icon, type IconName } from "../components/Icon";
+import { InstalarApp } from "../components/InstalarApp";
 import { Modal } from "../components/Modal";
 import { api, ApiError, type Configuracao } from "../lib/api";
 
@@ -30,6 +31,7 @@ const TITULOS: Record<ConfigKey, string> = {
 export function AjustesPage() {
   const { sair } = useAuth();
   const [aberta, setAberta] = useState<ConfigKey | null>(null);
+  const [mostrarInstalar, setMostrarInstalar] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [config, setConfig] = useState<Configuracao | null>(null);
 
@@ -98,6 +100,21 @@ export function AjustesPage() {
           </button>
         ))}
 
+        <h2 className="section-title">Aplicativo</h2>
+        <button
+          className="list-item list-item-btn"
+          onClick={() => setMostrarInstalar(true)}
+        >
+          <div className="badge-icon">
+            <Icon name="home" size={22} />
+          </div>
+          <div className="li-main">
+            <div className="li-title">Adicionar à tela inicial</div>
+            <div className="li-sub">Instalar como app no celular</div>
+          </div>
+          <Icon name="chevronRight" size={20} />
+        </button>
+
         <h2 className="section-title">Conta</h2>
         <button className="btn btn-accent" onClick={sair}>
           <Icon name="logout" size={20} />
@@ -125,6 +142,15 @@ export function AjustesPage() {
               }
             />
           )}
+        </Modal>
+      )}
+
+      {mostrarInstalar && (
+        <Modal
+          title="Adicionar à tela inicial"
+          onClose={() => setMostrarInstalar(false)}
+        >
+          <InstalarApp />
         </Modal>
       )}
     </>
