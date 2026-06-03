@@ -10,7 +10,6 @@ import {
   type ItemCobranca,
   type Morador,
   type Terreno,
-  type TipoPendencia,
 } from "../lib/api";
 import { useApi, type UseApiResult } from "../lib/useApi";
 import {
@@ -25,19 +24,8 @@ import {
 import { Alert } from "../components/Alert";
 import { Modal } from "../components/Modal";
 import { ConfirmarExclusao } from "../components/ConfirmarExclusao";
-import { Icon, type IconName } from "../components/Icon";
-
-const ICONE: Record<TipoPendencia, IconName> = {
-  ALUGUEL: "key",
-  AGUA: "water",
-  LUZ: "bolt",
-};
-
-const ROTULO: Record<TipoPendencia, string> = {
-  ALUGUEL: "Aluguel",
-  AGUA: "Água",
-  LUZ: "Luz",
-};
+import { Icon } from "../components/Icon";
+import { CobrancasCasa, ROTULO } from "../components/CobrancasCasa";
 
 type Aba = "cobrancas" | "moradores";
 
@@ -277,55 +265,14 @@ function Cobrancas({
         <p className="empty">Nenhuma cobrança lançada neste mês.</p>
       )}
 
-      {itens.data?.map((item) => {
-        const id = item.aluguel_id ?? item.rateio_id ?? "";
-        const atrasado = !item.pago && item.vencimento < hoje();
-        const estado = item.pago
-          ? "cobranca-paga"
-          : atrasado
-            ? "cobranca-atrasada"
-            : "cobranca-pendente";
-        return (
-          <div className={`list-item ${estado}`} key={id}>
-            <div className="badge-icon">
-              <Icon name={ICONE[item.tipo]} size={22} />
-            </div>
-            <div className="li-main">
-              <div className="li-title">{ROTULO[item.tipo]}</div>
-              <div className="li-sub">
-                {item.pago && item.pago_em
-                  ? `Recebido em ${formatarDiaMes(item.pago_em)}`
-                  : `Vence ${formatarDiaMes(item.vencimento)}`}
-              </div>
-            </div>
-            <div className="li-right">
-              <div className="li-amount">
-                {formatarCentavos(item.valor_centavos)}
-              </div>
-              <button
-                className={`confirm-btn ${item.pago ? "is-paid" : ""}`}
-                aria-label={
-                  item.pago ? "Desfazer recebimento" : "Confirmar recebimento"
-                }
-                disabled={busy === id}
-                onClick={() => alternar(item)}
-              >
-                <Icon name="check" size={20} />
-              </button>
-              <button
-                className="confirm-btn is-danger"
-                aria-label={
-                  item.aluguel_id ? "Excluir cobrança" : "Excluir conta"
-                }
-                disabled={busy === id}
-                onClick={() => setConfirmando(item)}
-              >
-                <Icon name="trash" size={18} />
-              </button>
-            </div>
-          </div>
-        );
-      })}
+      {itens.data && (
+        <CobrancasCasa
+          itens={itens.data}
+          busy={busy}
+          onAlternar={alternar}
+          onExcluir={setConfirmando}
+        />
+      )}
 
       {confirmando && (
         <ConfirmarExclusao

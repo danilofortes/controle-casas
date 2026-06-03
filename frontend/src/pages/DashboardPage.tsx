@@ -10,6 +10,7 @@ import {
 } from "../lib/api";
 import { useApi } from "../lib/useApi";
 import { Icon, type IconName } from "../components/Icon";
+import { AnelProgresso } from "../components/AnelProgresso";
 import { AtalhosRapidos } from "../components/AtalhosRapidos";
 import { MenuApp } from "../components/MenuApp";
 import {
@@ -110,34 +111,15 @@ export function DashboardPage() {
           </div>
         </div>
 
-        <div className="card" style={{ marginTop: 14 }}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              fontSize: 13,
-              color: "var(--muted)",
-              marginBottom: 8,
-            }}
-          >
-            <span>{pct}% recebido do mês</span>
-            <span>{formatarCentavos(aReceberTotal)}</span>
-          </div>
-          <div
-            style={{
-              height: 10,
-              borderRadius: 999,
-              background: "rgba(118,171,174,0.18)",
-              overflow: "hidden",
-            }}
-          >
-            <div
-              style={{
-                width: `${Math.min(pct, 100)}%`,
-                height: "100%",
-                background: "var(--secondary)",
-              }}
-            />
+        <div className="card progresso-card" style={{ marginTop: 14 }}>
+          <AnelProgresso valor={pct} tamanho={116} espessura={12} />
+          <div className="progresso-info">
+            <div className="progresso-rotulo">% recebido do mês</div>
+            <div className="progresso-valor">{formatarCentavos(recebido)}</div>
+            <div className="progresso-legenda">
+              <Icon name="key" size={15} />
+              de {formatarCentavos(aReceberTotal)} a receber
+            </div>
           </div>
         </div>
 
