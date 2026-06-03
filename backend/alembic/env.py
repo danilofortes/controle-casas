@@ -7,6 +7,7 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from app.core.config import settings
+from app.core.db import _build_connect_args
 from app.models import Base  # importa todos os modelos via app.models
 
 config = context.config
@@ -45,6 +46,9 @@ async def run_migrations_online() -> None:
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
+        # Mesmo fix do app: o pooler do Supabase (PgBouncer) não suporta
+        # prepared statements nomeados/cacheados.
+        connect_args=_build_connect_args(settings.database_url),
     )
     async with connectable.connect() as connection:
         await connection.run_sync(do_run_migrations)
