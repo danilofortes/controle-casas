@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Variáveis de ambiente / segredos
+.env
+.env.*
+!.env.example
+
+# Cursor (mcp.json contém tokens/chaves — NÃO comitar)
+.cursor/mcp.json
+
+# Sistema operacional / editores
+.DS_Store
+Thumbs.db
+*.swp
