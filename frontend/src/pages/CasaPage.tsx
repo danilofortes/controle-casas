@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   api,
@@ -6,8 +6,10 @@ import {
   confirmarAluguel,
   confirmarRateio,
   type Casa,
+  type ContaDetalhe,
   type ItemCobranca,
   type Morador,
+  type Terreno,
   type TipoPendencia,
 } from "../lib/api";
 import { useApi, type UseApiResult } from "../lib/useApi";
@@ -22,6 +24,7 @@ import {
 } from "../lib/format";
 import { Alert } from "../components/Alert";
 import { Modal } from "../components/Modal";
+import { ConfirmarExclusao } from "../components/ConfirmarExclusao";
 import { Icon, type IconName } from "../components/Icon";
 
 const ICONE: Record<TipoPendencia, IconName> = {
@@ -42,11 +45,49 @@ export function CasaPage() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
   const [aba, setAba] = useState<Aba>("cobrancas");
+  const [excluindo, setExcluindo] = useState(false);
+  const [confirmandoCasa, setConfirmandoCasa] = useState(false);
 
   const casa = useApi<Casa>(() => api.get<Casa>(`/casas/${id}`), [id]);
   const moradores = useApi<Morador[]>(
     () => api.get<Morador[]>(`/casas/${id}/moradores?incluir_inativos=true`),
     [id],
+  );
+  // Nome do terreno para enriquecer a mensagem de confirmação.
+  const terrenoId = casa.data?.terreno_id;
+  const terreno = useApi<Terreno | null>(
+    () =>
+      terrenoId
+        ? api.get<Terreno>(`/terrenos/${terrenoId}`)
+        : Promise.resolve(null),
+    [terrenoId],
+  );
+
+  async function excluirCasa() {
+    // A confirmação rica já informou a cascata, então enviamos confirmar=true.
+    setExcluindo(true);
+    try {
+      await api.del(`/casas/${id}?confirmar=true`);
+      navigate("/casas");
+    } catch (e) {
+      alert(e instanceof ApiError ? e.message : "Não foi possível excluir.");
+      setExcluindo(false);
+    }
+  }
+
+  const nomeCasa = casa.data?.nome ?? "esta casa";
+  const nomeTerreno = terreno.data?.nome;
+  const moradoresLista = moradores.data ?? [];
+  const itensCasa: string[] = [];
+  if (moradoresLista.length > 0) {
+    itensCasa.push(
+      `${moradoresLista.length} morador(es) serão excluídos: ${moradoresLista
+        .map((m) => m.nome)
+        .join(", ")}.`,
+    );
+  }
+  itensCasa.push(
+    "Todas as cobranças de aluguel e os rateios de contas desta casa também serão removidos.",
   );
 
   return (
@@ -84,7 +125,39 @@ export function CasaPage() {
         ) : (
           <Moradores casaId={id} lista={moradores} />
         )}
+
+        <button
+          className="btn-excluir"
+          onClick={() => setConfirmandoCasa(true)}
+          disabled={excluindo}
+        >
+          <Icon name="trash" size={18} />
+          Excluir casa
+        </button>
       </div>
+
+      {confirmandoCasa && (
+        <ConfirmarExclusao
+          titulo="Excluir casa"
+          descricao={
+            nomeTerreno ? (
+              <>
+                Excluir a casa <strong>"{nomeCasa}"</strong> do terreno{" "}
+                <strong>"{nomeTerreno}"</strong>?
+              </>
+            ) : (
+              <>
+                Excluir a casa <strong>"{nomeCasa}"</strong>?
+              </>
+            )
+          }
+          itens={itensCasa}
+          textoConfirmar="Excluir casa"
+          carregando={excluindo}
+          onConfirmar={excluirCasa}
+          onCancelar={() => setConfirmandoCasa(false)}
+        />
+      )}
     </>
   );
 }
@@ -98,6 +171,12 @@ function Cobrancas({
 }) {
   const [competencia, setCompetencia] = useState(competenciaAtual());
   const [busy, setBusy] = useState<string | null>(null);
+  // Item cuja exclusão está sendo confirmada (aluguel ou conta).
+  const [confirmando, setConfirmando] = useState<ItemCobranca | null>(null);
+  const [excluindo, setExcluindo] = useState(false);
+  // Detalhe da conta para listar as casas afetadas pelo rateio.
+  const [contaDetalhe, setContaDetalhe] = useState<ContaDetalhe | null>(null);
+  const [carregandoDetalhe, setCarregandoDetalhe] = useState(false);
 
   const itens = useApi<ItemCobranca[]>(
     () =>
@@ -111,6 +190,26 @@ function Cobrancas({
     .filter((m) => m.adulto && !m.data_saida)
     .map((m) => m.nome);
 
+  // Ao confirmar a exclusão de uma conta de água/luz, busca o detalhe para
+  // listar todas as casas cujo rateio será removido.
+  useEffect(() => {
+    if (!confirmando || confirmando.aluguel_id || !confirmando.conta_id) {
+      setContaDetalhe(null);
+      return;
+    }
+    let ativo = true;
+    setCarregandoDetalhe(true);
+    setContaDetalhe(null);
+    api
+      .get<ContaDetalhe>(`/contas/${confirmando.conta_id}`)
+      .then((d) => ativo && setContaDetalhe(d))
+      .catch(() => ativo && setContaDetalhe(null))
+      .finally(() => ativo && setCarregandoDetalhe(false));
+    return () => {
+      ativo = false;
+    };
+  }, [confirmando]);
+
   async function alternar(item: ItemCobranca) {
     const id = item.aluguel_id ?? item.rateio_id;
     if (!id) return;
@@ -121,6 +220,26 @@ function Cobrancas({
       itens.reload();
     } finally {
       setBusy(null);
+    }
+  }
+
+  async function confirmarExclusao() {
+    const item = confirmando;
+    if (!item) return;
+    setExcluindo(true);
+    try {
+      if (item.aluguel_id) {
+        await api.del(`/alugueis/${item.aluguel_id}`);
+      } else if (item.conta_id) {
+        // Exclui a conta inteira do mês: remove o rateio de todas as casas.
+        await api.del(`/contas/${item.conta_id}`);
+      }
+      setConfirmando(null);
+      itens.reload();
+    } catch (e) {
+      alert(e instanceof ApiError ? e.message : "Não foi possível excluir.");
+    } finally {
+      setExcluindo(false);
     }
   }
 
@@ -193,12 +312,87 @@ function Cobrancas({
               >
                 <Icon name="check" size={20} />
               </button>
+              <button
+                className="confirm-btn is-danger"
+                aria-label={
+                  item.aluguel_id ? "Excluir cobrança" : "Excluir conta"
+                }
+                disabled={busy === id}
+                onClick={() => setConfirmando(item)}
+              >
+                <Icon name="trash" size={18} />
+              </button>
             </div>
           </div>
         );
       })}
+
+      {confirmando && (
+        <ConfirmarExclusao
+          titulo={
+            confirmando.aluguel_id ? "Excluir cobrança" : "Excluir conta"
+          }
+          descricao={descricaoConfirmacao(
+            confirmando,
+            competencia,
+            contaDetalhe,
+            carregandoDetalhe,
+          )}
+          itens={itensConfirmacao(confirmando, contaDetalhe, carregandoDetalhe)}
+          textoConfirmar="Excluir"
+          carregando={excluindo}
+          onConfirmar={confirmarExclusao}
+          onCancelar={() => setConfirmando(null)}
+        />
+      )}
     </>
   );
+}
+
+/** Texto principal da confirmação de exclusão de uma cobrança/conta. */
+function descricaoConfirmacao(
+  item: ItemCobranca,
+  competencia: string,
+  conta: ContaDetalhe | null,
+  carregando: boolean,
+): ReactNode {
+  const mes = formatarCompetencia(item.competencia || competencia);
+  if (item.aluguel_id) {
+    return (
+      <>
+        Excluir a cobrança de aluguel de <strong>{mes}</strong> (
+        {formatarCentavos(item.valor_centavos)})?
+      </>
+    );
+  }
+  // Conta de água/luz: usa o valor total da conta quando disponível.
+  const valor = conta
+    ? formatarCentavos(conta.valor_total_centavos)
+    : carregando
+      ? "…"
+      : formatarCentavos(item.valor_centavos);
+  return (
+    <>
+      Excluir a conta de <strong>{ROTULO[item.tipo]}</strong> de{" "}
+      <strong>{mes}</strong> ({valor})?
+    </>
+  );
+}
+
+/** Itens em cascata da confirmação (casas afetadas pelo rateio da conta). */
+function itensConfirmacao(
+  item: ItemCobranca,
+  conta: ContaDetalhe | null,
+  carregando: boolean,
+): ReactNode[] {
+  if (item.aluguel_id) return [];
+  if (carregando) return ["Carregando casas afetadas…"];
+  if (conta && conta.rateios.length > 0) {
+    const nomes = conta.rateios.map((r) => r.casa_nome ?? "Casa").join(", ");
+    return [`O rateio das seguintes casas será excluído: ${nomes}.`];
+  }
+  // Detalhe indisponível: texto genérico.
+  return ["Isto remove o rateio de todas as casas participantes desta conta."];
 }
 
 function Moradores({

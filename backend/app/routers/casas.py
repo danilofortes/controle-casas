@@ -1,7 +1,7 @@
 import uuid
 
 from fastapi import APIRouter, HTTPException, Query, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from app.deps import SessionDep, UsuarioDep
 from app.domain.competencia import CompetenciaInvalida, validar_competencia
@@ -9,6 +9,7 @@ from app.models import (
     Casa,
     CobrancaAluguel,
     ContaCompartilhada,
+    Morador,
     RateioConta,
     Terreno,
 )
@@ -112,6 +113,7 @@ async def cobrancas(
             ItemCobranca(
                 tipo=tipo,
                 rateio_id=rateio.id,
+                conta_id=conta.id,
                 competencia=competencia,
                 valor_centavos=rateio.valor_centavos,
                 vencimento=conta.vencimento,
@@ -139,7 +141,39 @@ async def editar(
 
 
 @router.delete("/{casa_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def excluir(casa_id: uuid.UUID, session: SessionDep, _: UsuarioDep) -> None:
+async def excluir(
+    casa_id: uuid.UUID,
+    session: SessionDep,
+    _: UsuarioDep,
+    confirmar: bool = False,
+) -> None:
     casa = await _get_or_404(session, casa_id)
+
+    qtd_moradores = await session.scalar(
+        select(func.count(Morador.id)).where(Morador.casa_id == casa_id)
+    )
+    qtd_cobrancas = await session.scalar(
+        select(func.count(CobrancaAluguel.id)).where(
+            CobrancaAluguel.casa_id == casa_id
+        )
+    )
+    qtd_rateios = await session.scalar(
+        select(func.count(RateioConta.id)).where(RateioConta.casa_id == casa_id)
+    )
+
+    if (qtd_moradores or qtd_cobrancas or qtd_rateios) and not confirmar:
+        partes = []
+        if qtd_moradores:
+            partes.append(f"{qtd_moradores} morador(es)")
+        if qtd_cobrancas:
+            partes.append(f"{qtd_cobrancas} cobrança(s) de aluguel")
+        if qtd_rateios:
+            partes.append(f"{qtd_rateios} rateio(s) de conta")
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            f"A casa possui {', '.join(partes)} vinculado(s). "
+            "Reenvie com '?confirmar=true' para excluir tudo em cascata.",
+        )
+
     await session.delete(casa)
     await session.commit()

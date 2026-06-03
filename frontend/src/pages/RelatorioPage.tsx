@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { api, type Relatorio } from "../lib/api";
+import { api, ApiError, type Despesa, type Relatorio } from "../lib/api";
 import { useApi } from "../lib/useApi";
 import { Icon } from "../components/Icon";
+import { ConfirmarExclusao } from "../components/ConfirmarExclusao";
 import {
   competenciaAtual,
   deslocarCompetencia,
@@ -11,10 +12,39 @@ import {
 
 export function RelatorioPage() {
   const [competencia, setCompetencia] = useState<string>(competenciaAtual());
-  const { data, loading, error } = useApi<Relatorio>(
+  const {
+    data,
+    loading,
+    error,
+    reload: reloadRelatorio,
+  } = useApi<Relatorio>(
     () => api.get<Relatorio>(`/relatorio?competencia=${competencia}`),
     [competencia],
   );
+  const despesas = useApi<Despesa[]>(
+    () => api.get<Despesa[]>(`/despesas?competencia=${competencia}`),
+    [competencia],
+  );
+
+  const [confirmando, setConfirmando] = useState<Despesa | null>(null);
+  const [excluindo, setExcluindo] = useState(false);
+
+  async function excluirDespesa() {
+    const d = confirmando;
+    if (!d) return;
+    setExcluindo(true);
+    try {
+      await api.del(`/despesas/${d.id}`);
+      setConfirmando(null);
+      despesas.reload();
+      // O resumo mostra o total de despesas do mês, então recarrega também.
+      reloadRelatorio();
+    } catch (e) {
+      alert(e instanceof ApiError ? e.message : "Não foi possível excluir.");
+    } finally {
+      setExcluindo(false);
+    }
+  }
 
   const t = data?.totais;
 
@@ -100,7 +130,58 @@ export function RelatorioPage() {
             </div>
           </div>
         ))}
+
+        <h2 className="section-title">Despesas</h2>
+
+        {despesas.loading && <p className="loading">Carregando…</p>}
+        {despesas.error && <p className="error-text">{despesas.error}</p>}
+        {despesas.data && !despesas.loading && despesas.data.length === 0 && (
+          <p className="empty">Nenhuma despesa neste mês.</p>
+        )}
+
+        {despesas.data?.map((d) => {
+          const local = d.casa_nome ?? d.terreno_nome;
+          return (
+            <div className="list-item" key={d.id}>
+              <div className="badge-icon">
+                <Icon name="receipt" size={22} />
+              </div>
+              <div className="li-main">
+                <div className="li-title">{d.descricao}</div>
+                <div className="li-sub">{local ?? "Sem vínculo"}</div>
+              </div>
+              <div className="li-right">
+                <div className="li-amount">
+                  {formatarCentavos(d.valor_centavos)}
+                </div>
+                <button
+                  className="confirm-btn is-danger"
+                  aria-label="Excluir despesa"
+                  onClick={() => setConfirmando(d)}
+                >
+                  <Icon name="trash" size={18} />
+                </button>
+              </div>
+            </div>
+          );
+        })}
       </div>
+
+      {confirmando && (
+        <ConfirmarExclusao
+          titulo="Excluir despesa"
+          descricao={
+            <>
+              Excluir a despesa <strong>"{confirmando.descricao}"</strong> (
+              {formatarCentavos(confirmando.valor_centavos)})?
+            </>
+          }
+          textoConfirmar="Excluir despesa"
+          carregando={excluindo}
+          onConfirmar={excluirDespesa}
+          onCancelar={() => setConfirmando(null)}
+        />
+      )}
     </>
   );
 }

@@ -23,7 +23,9 @@ export type IconName =
   | "trash"
   | "alert"
   | "info"
-  | "edit";
+  | "edit"
+  | "menu"
+  | "grid";
 
 interface IconProps {
   name: IconName;
@@ -214,6 +216,23 @@ export function Icon({ name, size = 24, color, style }: IconProps) {
         <svg {...common}>
           <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
           <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+        </svg>
+      );
+    case "menu":
+      return (
+        <svg {...common}>
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <line x1="3" y1="12" x2="21" y2="12" />
+          <line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      );
+    case "grid":
+      return (
+        <svg {...common}>
+          <rect x="3" y="3" width="7" height="7" rx="1" />
+          <rect x="14" y="3" width="7" height="7" rx="1" />
+          <rect x="14" y="14" width="7" height="7" rx="1" />
+          <rect x="3" y="14" width="7" height="7" rx="1" />
         </svg>
       );
   }

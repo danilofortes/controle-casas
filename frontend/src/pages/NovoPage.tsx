@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Icon, type IconName } from "../components/Icon";
 import { Modal } from "../components/Modal";
 import {
@@ -10,7 +11,7 @@ import {
   TerrenoForm,
 } from "../components/forms/EntityForms";
 
-type FormKey =
+export type FormKey =
   | "terreno"
   | "casa"
   | "morador"
@@ -18,6 +19,16 @@ type FormKey =
   | "agua"
   | "luz"
   | "despesa";
+
+const FORM_KEYS: FormKey[] = [
+  "terreno",
+  "casa",
+  "morador",
+  "aluguel",
+  "agua",
+  "luz",
+  "despesa",
+];
 
 const OPCOES: { key: FormKey; icon: IconName; titulo: string; desc: string }[] = [
   { key: "terreno", icon: "map", titulo: "Novo terreno", desc: "Cadastrar um lote/terreno" },
@@ -42,6 +53,15 @@ const TITULOS: Record<FormKey, string> = {
 export function NovoPage() {
   const [aberto, setAberto] = useState<FormKey | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const location = useLocation();
+
+  // Abre automaticamente um formulário quando navegado com { state: { form } }.
+  useEffect(() => {
+    const form = (location.state as { form?: FormKey } | null)?.form;
+    if (form && FORM_KEYS.includes(form)) {
+      setAberto(form);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     if (!toast) return;

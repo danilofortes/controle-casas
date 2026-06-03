@@ -32,6 +32,7 @@ class RateioOut(BaseModel):
     id: uuid.UUID
     conta_id: uuid.UUID
     casa_id: uuid.UUID
+    casa_nome: str | None = None
     pessoas_snapshot: int
     valor_centavos: int
     pago: bool
@@ -65,7 +66,12 @@ class ContaDetalheOut(ContaOut):
     @classmethod
     def from_conta(cls, conta) -> "ContaDetalheOut":
         base = ContaOut.model_validate(conta).model_dump()
-        rateios = [RateioOut.model_validate(r) for r in conta.rateios]
+        rateios = []
+        for r in conta.rateios:
+            ro = RateioOut.model_validate(r)
+            # r.casa só está disponível quando carregada via eager load.
+            ro.casa_nome = getattr(getattr(r, "casa", None), "nome", None)
+            rateios.append(ro)
         soma_cobrada = sum(r.valor_centavos for r in conta.rateios)
         valor_admin = conta.valor_total_centavos - soma_cobrada
         return cls(

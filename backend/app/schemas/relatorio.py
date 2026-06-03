@@ -64,6 +64,8 @@ class ItemCobranca(BaseModel):
     tipo: str  # "ALUGUEL" | "AGUA" | "LUZ"
     aluguel_id: uuid.UUID | None = None
     rateio_id: uuid.UUID | None = None
+    # Conta de água/luz à qual o rateio pertence (permite excluir a conta toda).
+    conta_id: uuid.UUID | None = None
     competencia: str
     valor_centavos: int
     vencimento: date

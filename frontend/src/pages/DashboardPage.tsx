@@ -10,6 +10,8 @@ import {
 } from "../lib/api";
 import { useApi } from "../lib/useApi";
 import { Icon, type IconName } from "../components/Icon";
+import { AtalhosRapidos } from "../components/AtalhosRapidos";
+import { MenuApp } from "../components/MenuApp";
 import {
   competenciaAtual,
   deslocarCompetencia,
@@ -50,6 +52,7 @@ export function DashboardPage() {
   );
 
   const [confirmando, setConfirmando] = useState<string | null>(null);
+  const [menuAberto, setMenuAberto] = useState(false);
 
   async function confirmar(p: ItemPendente) {
     const id = p.aluguel_id ?? p.rateio_id;
@@ -74,11 +77,24 @@ export function DashboardPage() {
   return (
     <>
       <header className="screen-header">
-        <h1>Olá</h1>
-        <p className="subtitle">{formatarCompetencia(competencia)}</p>
+        <div className="header-bar">
+          <div>
+            <h1>Olá</h1>
+            <p className="subtitle">{formatarCompetencia(competencia)}</p>
+          </div>
+          <button
+            className="back-btn header-menu-btn"
+            aria-label="Abrir menu"
+            onClick={() => setMenuAberto(true)}
+          >
+            <Icon name="menu" size={22} />
+          </button>
+        </div>
       </header>
 
       <div className="screen-body">
+        <AtalhosRapidos />
+
         <div className="stat-row">
           <div className="stat">
             <span className="label">
@@ -210,6 +226,8 @@ export function DashboardPage() {
           );
         })}
       </div>
+
+      {menuAberto && <MenuApp onClose={() => setMenuAberto(false)} />}
     </>
   );
 }

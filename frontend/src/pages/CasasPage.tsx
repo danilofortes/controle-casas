@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { api, type Casa, type Terreno } from "../lib/api";
+import { api, ApiError, type Casa, type Terreno } from "../lib/api";
 import { useApi } from "../lib/useApi";
 import { Icon } from "../components/Icon";
+import { ConfirmarExclusao } from "../components/ConfirmarExclusao";
 import { formatarCentavos } from "../lib/format";
 
 export function CasasPage() {
@@ -14,6 +15,42 @@ export function CasasPage() {
   const erro = terrenos.error || casas.error;
 
   const [abertos, setAbertos] = useState<Set<string>>(new Set());
+  const [excluindo, setExcluindo] = useState(false);
+  // Terreno cuja exclusão está sendo confirmada.
+  const [confirmando, setConfirmando] = useState<Terreno | null>(null);
+
+  const casasDoConfirmando = confirmando
+    ? (casas.data?.filter((c) => c.terreno_id === confirmando.id) ?? [])
+    : [];
+
+  async function excluirTerreno() {
+    const terreno = confirmando;
+    if (!terreno) return;
+    // A confirmação rica já listou as casas, então enviamos confirmar=true.
+    setExcluindo(true);
+    try {
+      await api.del(`/terrenos/${terreno.id}?confirmar=true`);
+      setConfirmando(null);
+      terrenos.reload();
+      casas.reload();
+    } catch (e) {
+      alert(e instanceof ApiError ? e.message : "Não foi possível excluir.");
+    } finally {
+      setExcluindo(false);
+    }
+  }
+
+  const itensTerreno: string[] = [];
+  if (casasDoConfirmando.length > 0) {
+    itensTerreno.push(
+      `As ${casasDoConfirmando.length} casa(s) deste terreno serão excluídas: ${casasDoConfirmando
+        .map((c) => c.nome)
+        .join(", ")}.`,
+    );
+    itensTerreno.push(
+      "Todos os moradores, cobranças e contas dessas casas também serão excluídos.",
+    );
+  }
 
   useEffect(() => {
     if (terrenos.data) setAbertos(new Set(terrenos.data.map((t) => t.id)));
@@ -104,12 +141,39 @@ export function CasasPage() {
                       <Icon name="chevronRight" size={18} />
                     </button>
                   ))}
+
+                  <button
+                    className="btn-excluir"
+                    onClick={() => setConfirmando(terreno)}
+                    disabled={excluindo && confirmando?.id === terreno.id}
+                  >
+                    <Icon name="trash" size={18} />
+                    {excluindo && confirmando?.id === terreno.id
+                      ? "Excluindo…"
+                      : "Excluir terreno"}
+                  </button>
                 </div>
               )}
             </div>
           );
         })}
       </div>
+
+      {confirmando && (
+        <ConfirmarExclusao
+          titulo="Excluir terreno"
+          descricao={
+            <>
+              Excluir o terreno <strong>"{confirmando.nome}"</strong>?
+            </>
+          }
+          itens={itensTerreno}
+          textoConfirmar="Excluir terreno"
+          carregando={excluindo}
+          onConfirmar={excluirTerreno}
+          onCancelar={() => setConfirmando(null)}
+        />
+      )}
     </>
   );
 }

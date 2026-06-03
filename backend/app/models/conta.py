@@ -32,6 +32,7 @@ class ContaCompartilhada(Base, TimestampMixin):
     rateios: Mapped[list["RateioConta"]] = relationship(
         back_populates="conta",
         cascade="all, delete-orphan",
+        passive_deletes=True,
     )
 
 

@@ -20,18 +20,28 @@ class Casa(Base, TimestampMixin):
     observacoes: Mapped[str | None]
 
     terreno: Mapped["Terreno"] = relationship(back_populates="casas")  # noqa: F821
+    # passive_deletes=True: a cascata é feita pelo banco (ON DELETE CASCADE nas
+    # FKs dos filhos). Sem isso, o ORM async tentaria carregar os filhos por
+    # lazy-load durante o delete e quebraria com MissingGreenlet.
     moradores: Mapped[list["Morador"]] = relationship(  # noqa: F821
         back_populates="casa",
         cascade="all, delete-orphan",
+        passive_deletes=True,
     )
     rateios: Mapped[list["RateioConta"]] = relationship(  # noqa: F821
         back_populates="casa",
         cascade="all, delete-orphan",
+        passive_deletes=True,
     )
     cobrancas: Mapped[list["CobrancaAluguel"]] = relationship(  # noqa: F821
         back_populates="casa",
         cascade="all, delete-orphan",
+        passive_deletes=True,
     )
+    # Despesa também é apagada junto com a casa (FK casa_id vira ON DELETE
+    # CASCADE na migration 0006).
     despesas: Mapped[list["Despesa"]] = relationship(  # noqa: F821
         back_populates="casa",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )

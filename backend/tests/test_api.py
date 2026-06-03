@@ -252,6 +252,161 @@ async def test_excluir_terreno_com_casas_exige_confirmacao(auth_client):
 
 
 @pytest.mark.asyncio
+async def test_excluir_casa_com_dependencias_exige_confirmacao(auth_client):
+    client = auth_client
+    terreno_id = await _criar_terreno(client)
+    casa_id = await _criar_casa(client, terreno_id, "Casa 1")
+    await _add_morador(client, casa_id, "A")
+    await client.post(
+        "/api/alugueis", json={"casa_id": casa_id, "competencia": "2026-07"}
+    )
+
+    # Sem confirmar -> 409 explicando a cascata
+    r = await client.delete(f"/api/casas/{casa_id}")
+    assert r.status_code == 409
+    assert "confirmar=true" in r.json()["detail"]
+
+    # Com confirmar -> remove a casa e tudo que depende dela
+    r2 = await client.delete(f"/api/casas/{casa_id}?confirmar=true")
+    assert r2.status_code == 204
+
+    r3 = await client.get(f"/api/casas/{casa_id}")
+    assert r3.status_code == 404
+    # Moradores da casa também somem (cascata no banco).
+    r4 = await client.get("/api/alugueis", params={"casa_id": casa_id})
+    assert r4.json() == []
+
+
+@pytest.mark.asyncio
+async def test_excluir_casa_sem_dependencias(auth_client):
+    client = auth_client
+    terreno_id = await _criar_terreno(client)
+    casa_id = await _criar_casa(client, terreno_id, "Casa só")
+    r = await client.delete(f"/api/casas/{casa_id}")
+    assert r.status_code == 204
+
+
+@pytest.mark.asyncio
+async def test_excluir_aluguel(auth_client):
+    client = auth_client
+    terreno_id = await _criar_terreno(client)
+    casa_id = await _criar_casa(client, terreno_id, "Casa 1")
+    r = await client.post(
+        "/api/alugueis", json={"casa_id": casa_id, "competencia": "2026-08"}
+    )
+    aluguel_id = r.json()["id"]
+    rd = await client.delete(f"/api/alugueis/{aluguel_id}")
+    assert rd.status_code == 204
+    rl = await client.get("/api/alugueis", params={"casa_id": casa_id})
+    assert rl.json() == []
+
+
+@pytest.mark.asyncio
+async def test_excluir_conta_remove_rateios(auth_client):
+    client = auth_client
+    terreno_id = await _criar_terreno(client)
+    casa_id = await _criar_casa(client, terreno_id, "Casa 1")
+    await _add_morador(client, casa_id, "A")
+    r = await client.post(
+        "/api/contas",
+        json={
+            "terreno_id": terreno_id,
+            "tipo": "AGUA",
+            "competencia": "2026-09",
+            "valor_total_centavos": 5000,
+            "vencimento": "2026-09-10",
+        },
+    )
+    conta_id = r.json()["id"]
+    rd = await client.delete(f"/api/contas/{conta_id}")
+    assert rd.status_code == 204
+    rg = await client.get(f"/api/contas/{conta_id}")
+    assert rg.status_code == 404
+    # O rateio não deve mais aparecer entre as cobranças da casa.
+    rc = await client.get(
+        f"/api/casas/{casa_id}/cobrancas", params={"competencia": "2026-09"}
+    )
+    assert rc.json() == []
+
+
+@pytest.mark.asyncio
+async def test_excluir_despesa(auth_client):
+    client = auth_client
+    terreno_id = await _criar_terreno(client)
+    r = await client.post(
+        "/api/despesas",
+        json={
+            "terreno_id": terreno_id,
+            "descricao": "Reparo telhado",
+            "categoria": "REPARO",
+            "valor_centavos": 12000,
+            "data": "2026-09-05",
+        },
+    )
+    assert r.status_code == 201, r.text
+    despesa_id = r.json()["id"]
+    rd = await client.delete(f"/api/despesas/{despesa_id}")
+    assert rd.status_code == 204
+
+
+@pytest.mark.asyncio
+async def test_listar_despesas_por_competencia_com_nomes(auth_client):
+    client = auth_client
+    terreno_id = await _criar_terreno(client, "Ouro Verde")
+    casa_id = await _criar_casa(client, terreno_id, "Casa 1")
+
+    # Despesa de set/2026 vinculada à casa
+    await client.post(
+        "/api/despesas",
+        json={
+            "casa_id": casa_id,
+            "descricao": "Troca de torneira",
+            "categoria": "REPARO",
+            "valor_centavos": 8000,
+            "data": "2026-09-12",
+        },
+    )
+    # Despesa de set/2026 vinculada ao terreno
+    await client.post(
+        "/api/despesas",
+        json={
+            "terreno_id": terreno_id,
+            "descricao": "Poda de árvores",
+            "categoria": "MANUTENCAO",
+            "valor_centavos": 5000,
+            "data": "2026-09-20",
+        },
+    )
+    # Despesa de outro mês (não deve aparecer no filtro)
+    await client.post(
+        "/api/despesas",
+        json={
+            "terreno_id": terreno_id,
+            "descricao": "Outro mês",
+            "categoria": "OUTROS",
+            "valor_centavos": 1000,
+            "data": "2026-10-01",
+        },
+    )
+
+    r = await client.get("/api/despesas", params={"competencia": "2026-09"})
+    assert r.status_code == 200, r.text
+    dados = r.json()
+    assert len(dados) == 2
+    por_desc = {d["descricao"]: d for d in dados}
+    assert por_desc["Troca de torneira"]["casa_nome"] == "Casa 1"
+    assert por_desc["Poda de árvores"]["terreno_nome"] == "Ouro Verde"
+    assert por_desc["Poda de árvores"]["casa_nome"] is None
+
+
+@pytest.mark.asyncio
+async def test_listar_despesas_competencia_invalida_422(auth_client):
+    client = auth_client
+    r = await client.get("/api/despesas", params={"competencia": "2026-13"})
+    assert r.status_code == 422
+
+
+@pytest.mark.asyncio
 async def test_competencia_invalida_422(auth_client):
     client = auth_client
     terreno_id = await _criar_terreno(client)
