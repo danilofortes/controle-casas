@@ -1,11 +1,15 @@
 import { Outlet } from "react-router-dom";
 import { BottomNav } from "./BottomNav";
+import { DesktopHeader } from "./DesktopHeader";
 
 export function AppShell() {
   return (
-    <div className="app-frame">
-      <Outlet />
-      <BottomNav />
-    </div>
+    <>
+      <DesktopHeader />
+      <div className="app-frame app-shell">
+        <Outlet />
+        <BottomNav />
+      </div>
+    </>
   );
 }
