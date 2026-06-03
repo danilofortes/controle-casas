@@ -159,9 +159,15 @@ function Cobrancas({
 
       {itens.data?.map((item) => {
         const id = item.aluguel_id ?? item.rateio_id ?? "";
+        const atrasado = !item.pago && item.vencimento < hoje();
+        const estado = item.pago
+          ? "cobranca-paga"
+          : atrasado
+            ? "cobranca-atrasada"
+            : "cobranca-pendente";
         return (
-          <div className="list-item" key={id}>
-            <div className={`badge-icon ${item.pago ? "" : "is-accent"}`}>
+          <div className={`list-item ${estado}`} key={id}>
+            <div className="badge-icon">
               <Icon name={ICONE[item.tipo]} size={22} />
             </div>
             <div className="li-main">
