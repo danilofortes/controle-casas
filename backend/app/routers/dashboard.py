@@ -60,10 +60,17 @@ async def dashboard(
     pendencias: list[ItemPendente] = []
     total_aberto = 0
     qtd_atrasados = 0
+    qtd_proximos = 0
+
+    # Janela de aviso: pendências que vencem em até DIAS_AVISO dias.
+    DIAS_AVISO = 3
 
     for cobranca in cobrancas:
-        atrasado = cobranca.vencimento < hoje
+        dias = (cobranca.vencimento - hoje).days
+        atrasado = dias < 0
+        em_breve = 0 <= dias <= DIAS_AVISO
         qtd_atrasados += int(atrasado)
+        qtd_proximos += int(em_breve)
         total_aberto += cobranca.valor_centavos
         casa = casas.get(cobranca.casa_id)
         pendencias.append(
@@ -75,17 +82,22 @@ async def dashboard(
                 valor_centavos=cobranca.valor_centavos,
                 vencimento=cobranca.vencimento.isoformat(),
                 atrasado=atrasado,
+                dias_para_vencer=dias,
+                vence_em_breve=em_breve,
                 aluguel_id=cobranca.id,
             )
         )
 
     for conta in contas:
-        atrasado_conta = conta.vencimento < hoje
+        dias_conta = (conta.vencimento - hoje).days
+        atrasado_conta = dias_conta < 0
+        em_breve_conta = 0 <= dias_conta <= DIAS_AVISO
         tipo = "AGUA" if conta.tipo == TipoConta.AGUA else "LUZ"
         for r in conta.rateios:
             if r.pago:
                 continue
             qtd_atrasados += int(atrasado_conta)
+            qtd_proximos += int(em_breve_conta)
             total_aberto += r.valor_centavos
             casa = casas.get(r.casa_id)
             pendencias.append(
@@ -97,11 +109,20 @@ async def dashboard(
                     valor_centavos=r.valor_centavos,
                     vencimento=conta.vencimento.isoformat(),
                     atrasado=atrasado_conta,
+                    dias_para_vencer=dias_conta,
+                    vence_em_breve=em_breve_conta,
                     rateio_id=r.id,
                 )
             )
 
-    pendencias.sort(key=lambda p: (not p.atrasado, p.vencimento or ""))
+    # Ordena: atrasados primeiro, depois os que vencem em breve, depois o resto.
+    pendencias.sort(
+        key=lambda p: (
+            not p.atrasado,
+            not p.vence_em_breve,
+            p.vencimento or "",
+        )
+    )
 
     return DashboardOut(
         competencia=competencia,
@@ -109,5 +130,6 @@ async def dashboard(
         total_em_aberto_centavos=total_aberto,
         qtd_itens_abertos=len(pendencias),
         qtd_itens_atrasados=qtd_atrasados,
+        qtd_itens_proximos=qtd_proximos,
         pendencias=pendencias,
     )
