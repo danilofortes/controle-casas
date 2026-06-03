@@ -1,0 +1,17 @@
+node_modules
+dist
+dist-ssr
+*.local
+
+# Artefatos de build do config (gerados de vite.config.ts)
+vite.config.js
+vite.config.d.ts
+
+# Cache incremental do TypeScript
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
