@@ -1112,3 +1112,122 @@ a {
 .list-item.cobranca-pendente .li-sub {
   color: var(--muted);
 }
+
+/* ============================================================
+   Navegação superior (desktop / navegador)
+   ============================================================ */
+.desktop-header {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  /* Barra de topo fixa */
+  .desktop-header {
+    display: block;
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: var(--white);
+    box-shadow: 0 2px 12px rgba(48, 56, 65, 0.06);
+  }
+
+  .desktop-header-inner {
+    max-width: 760px;
+    margin: 0 auto;
+    height: 64px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .dh-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: "Inter", system-ui, sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    color: var(--ink);
+  }
+
+  .dh-brand img {
+    border-radius: 8px;
+  }
+
+  .dh-nav {
+    display: flex;
+    gap: 4px;
+    flex: 1;
+    margin-left: 18px;
+  }
+
+  .dh-link {
+    padding: 8px 14px;
+    border-radius: 999px;
+    color: var(--ink-soft);
+    font-family: "Inter", system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .dh-link:hover {
+    background: var(--bg);
+    color: var(--ink);
+  }
+
+  .dh-link.active {
+    color: var(--primary);
+    background: var(--secondary-tint);
+  }
+
+  .dh-novo {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent);
+    color: var(--white);
+    padding: 9px 18px;
+    border-radius: 999px;
+    font-family: "Inter", system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    box-shadow: 0 6px 16px rgba(255, 87, 34, 0.28);
+    transition: filter 0.15s ease;
+  }
+
+  .dh-novo:hover {
+    filter: brightness(1.06);
+  }
+
+  /* Coluna de conteúdo mais larga e sem barra inferior */
+  .app-shell {
+    max-width: 760px;
+    min-height: calc(100vh - 64px);
+  }
+
+  .app-shell .bottom-nav {
+    display: none;
+  }
+
+  /* Remove o espaço que era reservado para a barra inferior */
+  .app-shell .screen-body {
+    padding-bottom: 40px;
+  }
+
+  /* Cabeçalho colorido das páginas fica mais enxuto sob a barra de topo */
+  .app-shell .screen-header {
+    padding-top: 32px;
+  }
+}
+
+@media (min-width: 768px) {
+  /* Login centralizado num cartão mais contido no desktop */
+  .login-screen .card,
+  .login-brand {
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
