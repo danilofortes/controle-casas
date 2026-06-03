@@ -67,3 +67,10 @@ export function formatarDiaMes(iso: string | null): string {
   if (!dia || !mes) return iso;
   return `${dia}/${mes}`;
 }
+
+/** "2026-06-10" -> "10/06/2026". */
+export function formatarDataCompleta(iso: string): string {
+  const [ano, mes, dia] = iso.split("-");
+  if (!dia || !mes || !ano) return iso;
+  return `${dia}/${mes}/${ano}`;
+}

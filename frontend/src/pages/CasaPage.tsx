@@ -16,6 +16,7 @@ import {
   deslocarCompetencia,
   formatarCentavos,
   formatarCompetencia,
+  formatarDataCompleta,
   formatarDiaMes,
   hoje,
 } from "../lib/format";
@@ -397,10 +398,13 @@ function VisualizarMorador({
         />
         <InfoLinha
           rotulo="Entrada"
-          valor={formatarDiaMes(morador.data_entrada)}
+          valor={formatarDataCompleta(morador.data_entrada)}
         />
         {morador.data_saida && (
-          <InfoLinha rotulo="Saída" valor={formatarDiaMes(morador.data_saida)} />
+          <InfoLinha
+            rotulo="Saída"
+            valor={formatarDataCompleta(morador.data_saida)}
+          />
         )}
       </div>
       <button className="btn" style={{ marginTop: 16 }} onClick={onEditar}>
