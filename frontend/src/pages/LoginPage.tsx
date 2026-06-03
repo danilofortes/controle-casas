@@ -30,12 +30,12 @@ export function LoginPage() {
 
   return (
     <div className="app-frame">
-      <header className="screen-header" style={{ paddingBottom: 110 }}>
-        <h1>Casa em Dia</h1>
-        <p className="subtitle">Controle de aluguéis e contas</p>
-      </header>
+      <div className="screen-body login-screen">
+        <div className="login-brand">
+          <img src="/logo.svg" alt="Casa em Dia" width={156} height={156} />
+          <p>Controle de aluguéis e contas</p>
+        </div>
 
-      <div className="screen-body">
         <form className="card" onSubmit={aoEnviar}>
           <h2 style={{ marginTop: 0, marginBottom: 18 }}>Bem-vindo</h2>
 

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="Casa em Dia">
+  <path d="M60 4 L114 38 V116 H6 V38 Z" fill="#FF5722"/>
+  <rect x="20" y="44" width="80" height="4" rx="2" fill="#ffffff"/>
+  <text x="60" y="67" text-anchor="middle" font-family="Poppins, 'Segoe UI', Arial, sans-serif" font-size="21" font-weight="800" fill="#ffffff" letter-spacing="1.5">CASA</text>
+  <text x="60" y="88" text-anchor="middle" font-family="Poppins, 'Segoe UI', Arial, sans-serif" font-size="21" font-weight="800" fill="#ffffff" letter-spacing="1.5">EM DIA</text>
+  <rect x="20" y="95" width="80" height="3" rx="1.5" fill="#ffffff"/>
+  <text x="60" y="107" text-anchor="middle" font-family="Poppins, 'Segoe UI', Arial, sans-serif" font-size="5.4" font-weight="600" fill="#ffffff" letter-spacing="0.5">CONTROLE FINAN&#199;AS DE ALUGU&#201;IS</text>
+</svg>
