@@ -1,11 +1,20 @@
 import uuid
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Query, status
 from sqlalchemy import select
 
 from app.deps import SessionDep, UsuarioDep
-from app.models import Casa, Terreno
+from app.domain.competencia import CompetenciaInvalida, validar_competencia
+from app.models import (
+    Casa,
+    CobrancaAluguel,
+    ContaCompartilhada,
+    RateioConta,
+    Terreno,
+)
+from app.models.base import TipoConta
 from app.schemas.casa import CasaCreate, CasaDetalheOut, CasaOut, CasaUpdate
+from app.schemas.relatorio import ItemCobranca
 from app.services.moradores import contar_moradores_atuais
 
 router = APIRouter(prefix="/casas", tags=["casas"])
@@ -52,6 +61,66 @@ async def detalhe(
     casa = await _get_or_404(session, casa_id)
     qtd = await contar_moradores_atuais(session, casa_id)
     return CasaDetalheOut.from_casa(casa, qtd)
+
+
+@router.get("/{casa_id}/cobrancas", response_model=list[ItemCobranca])
+async def cobrancas(
+    casa_id: uuid.UUID,
+    session: SessionDep,
+    _: UsuarioDep,
+    competencia: str = Query(..., description="Competência YYYY-MM"),
+) -> list[ItemCobranca]:
+    await _get_or_404(session, casa_id)
+    try:
+        competencia = validar_competencia(competencia)
+    except CompetenciaInvalida as exc:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, str(exc)) from exc
+
+    itens: list[ItemCobranca] = []
+
+    aluguel = await session.scalar(
+        select(CobrancaAluguel).where(
+            CobrancaAluguel.casa_id == casa_id,
+            CobrancaAluguel.competencia == competencia,
+        )
+    )
+    if aluguel is not None:
+        itens.append(
+            ItemCobranca(
+                tipo="ALUGUEL",
+                aluguel_id=aluguel.id,
+                competencia=competencia,
+                valor_centavos=aluguel.valor_centavos,
+                vencimento=aluguel.vencimento,
+                pago=aluguel.pago,
+                pago_em=aluguel.pago_em,
+            )
+        )
+
+    stmt = (
+        select(RateioConta, ContaCompartilhada)
+        .join(ContaCompartilhada, RateioConta.conta_id == ContaCompartilhada.id)
+        .where(
+            RateioConta.casa_id == casa_id,
+            ContaCompartilhada.competencia == competencia,
+        )
+        .order_by(ContaCompartilhada.tipo)
+    )
+    for rateio, conta in (await session.execute(stmt)).all():
+        tipo = "AGUA" if conta.tipo == TipoConta.AGUA else "LUZ"
+        itens.append(
+            ItemCobranca(
+                tipo=tipo,
+                rateio_id=rateio.id,
+                competencia=competencia,
+                valor_centavos=rateio.valor_centavos,
+                vencimento=conta.vencimento,
+                pago=rateio.pago,
+                pago_em=rateio.pago_em,
+            )
+        )
+
+    return itens
 
 
 @router.put("/{casa_id}", response_model=CasaOut)

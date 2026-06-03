@@ -6,6 +6,7 @@ from app.routers import (
     alugueis,
     auth,
     casas,
+    config,
     contas,
     dashboard,
     despesas,
@@ -40,6 +41,7 @@ api_routers = [
     despesas.router,
     relatorio.router,
     dashboard.router,
+    config.router,
 ]
 for r in api_routers:
     app.include_router(r, prefix="/api")

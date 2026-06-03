@@ -1,6 +1,9 @@
 import uuid
+from datetime import date
 
-from pydantic import BaseModel
+from pydantic import BaseModel, computed_field
+
+from app.domain.money import formatar_brl
 
 
 class CasaRelatorio(BaseModel):
@@ -36,6 +39,9 @@ class ItemPendente(BaseModel):
     valor_centavos: int
     vencimento: str | None
     atrasado: bool
+    # IDs para confirmar o recebimento direto da pendência.
+    aluguel_id: uuid.UUID | None = None
+    rateio_id: uuid.UUID | None = None
 
 
 class DashboardOut(BaseModel):
@@ -45,3 +51,21 @@ class DashboardOut(BaseModel):
     qtd_itens_abertos: int
     qtd_itens_atrasados: int
     pendencias: list[ItemPendente]
+
+
+class ItemCobranca(BaseModel):
+    """Cobrança de uma casa numa competência (aluguel ou rateio de conta)."""
+
+    tipo: str  # "ALUGUEL" | "AGUA" | "LUZ"
+    aluguel_id: uuid.UUID | None = None
+    rateio_id: uuid.UUID | None = None
+    competencia: str
+    valor_centavos: int
+    vencimento: date
+    pago: bool
+    pago_em: date | None
+
+    @computed_field
+    @property
+    def valor_formatado(self) -> str:
+        return formatar_brl(self.valor_centavos)

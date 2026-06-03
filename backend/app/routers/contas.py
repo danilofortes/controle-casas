@@ -14,9 +14,14 @@ from app.schemas.conta import (
     ContaOut,
     ContaUpdate,
 )
+from app.services.config import get_moradores_administradora
 from app.services.moradores import mapa_moradores_atuais
 
 router = APIRouter(prefix="/contas", tags=["contas"])
+
+# Identificador sintético da família administradora dentro do cálculo de rateio.
+# A fatia dela entra na contagem de cabeças, mas não vira uma cobrança real.
+_ID_ADMIN = "__ADMIN__"
 
 
 async def _conta_or_404(session: AsyncSession, conta_id: uuid.UUID) -> ContaCompartilhada:
@@ -98,6 +103,14 @@ async def lancar(
         for c in casas
     ]
 
+    # A família administradora também consome do mesmo medidor: entra na contagem
+    # de cabeças (valor fixo configurável), mas a fatia dela não é cobrada.
+    admin_pessoas = await get_moradores_administradora(session)
+    if admin_pessoas > 0:
+        participantes.append(
+            CasaParticipante(casa_id=_ID_ADMIN, pessoas=admin_pessoas)
+        )
+
     try:
         fatias = calcular_rateio(dados.valor_total_centavos, participantes)
     except RateioInvalido as exc:
@@ -109,6 +122,7 @@ async def lancar(
         competencia=dados.competencia,
         valor_total_centavos=dados.valor_total_centavos,
         vencimento=dados.vencimento,
+        pessoas_administradora=admin_pessoas,
     )
     conta.rateios = [
         RateioConta(
@@ -117,6 +131,7 @@ async def lancar(
             valor_centavos=f.valor_centavos,
         )
         for f in fatias
+        if f.casa_id != _ID_ADMIN
     ]
     session.add(conta)
     await session.commit()
@@ -148,11 +163,18 @@ async def editar(
 
     if dados.valor_total_centavos is not None:
         conta.valor_total_centavos = dados.valor_total_centavos
-        # Recalcula mantendo o snapshot de pessoas já gravado em cada rateio.
+        # Recalcula mantendo o snapshot de pessoas já gravado em cada rateio,
+        # incluindo o snapshot da família administradora (não cobrada).
         participantes = [
             CasaParticipante(casa_id=str(r.casa_id), pessoas=r.pessoas_snapshot)
             for r in conta.rateios
         ]
+        if conta.pessoas_administradora > 0:
+            participantes.append(
+                CasaParticipante(
+                    casa_id=_ID_ADMIN, pessoas=conta.pessoas_administradora
+                )
+            )
         try:
             fatias = calcular_rateio(conta.valor_total_centavos, participantes)
         except RateioInvalido as exc:

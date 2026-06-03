@@ -51,6 +51,7 @@ class ContaOut(BaseModel):
     competencia: str
     valor_total_centavos: int
     vencimento: date
+    pessoas_administradora: int
     created_at: datetime
     updated_at: datetime
 
@@ -58,15 +59,21 @@ class ContaOut(BaseModel):
 class ContaDetalheOut(ContaOut):
     rateios: list[RateioOut] = []
     valor_total_formatado: str = ""
+    valor_administradora_centavos: int = 0
+    valor_administradora_formatado: str = ""
 
     @classmethod
     def from_conta(cls, conta) -> "ContaDetalheOut":
         base = ContaOut.model_validate(conta).model_dump()
         rateios = [RateioOut.model_validate(r) for r in conta.rateios]
+        soma_cobrada = sum(r.valor_centavos for r in conta.rateios)
+        valor_admin = conta.valor_total_centavos - soma_cobrada
         return cls(
             **base,
             rateios=rateios,
             valor_total_formatado=formatar_brl(conta.valor_total_centavos),
+            valor_administradora_centavos=valor_admin,
+            valor_administradora_formatado=formatar_brl(valor_admin),
         )
 
 

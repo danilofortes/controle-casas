@@ -75,6 +75,7 @@ async def dashboard(
                 valor_centavos=cobranca.valor_centavos,
                 vencimento=cobranca.vencimento.isoformat(),
                 atrasado=atrasado,
+                aluguel_id=cobranca.id,
             )
         )
 
@@ -96,6 +97,7 @@ async def dashboard(
                     valor_centavos=r.valor_centavos,
                     vencimento=conta.vencimento.isoformat(),
                     atrasado=atrasado_conta,
+                    rateio_id=r.id,
                 )
             )
 
