@@ -16,15 +16,24 @@ O coração do sistema é a **divisão das contas "por cabeça"** (rateio propor
 
 ---
 
-## 🔗 Demo / Produção
+## 🚀 Como funciona em produção
 
-| Ambiente | URL |
-|---|---|
-| **App (frontend)** | https://controle-casas.vercel.app |
-| **API (backend)** | https://controle-casas-api.onrender.com |
-| **Documentação da API (Swagger)** | https://controle-casas-api.onrender.com/docs |
+A aplicação roda em uma arquitetura simples de duas camadas, com o banco gerenciado à parte:
 
-> Acesso protegido por uma **senha única compartilhada** entre a família.
+- **Frontend** — build estático (Vite) servido por uma CDN. É um PWA mobile-first instalável no celular.
+- **Backend** — API **FastAPI** rodando como serviço web, com deploy contínuo a cada push na branch `main`.
+- **Banco de dados** — **PostgreSQL gerenciado**, acessado apenas pelo backend (nunca direto pelo frontend).
+
+O frontend conversa **somente** com a API (via `VITE_API_URL`); nenhuma credencial de banco ou chave sensível vai para o navegador.
+
+**Segurança em produção:**
+
+- Acesso protegido por uma **senha única compartilhada** entre a família, com sessão via **JWT (HS256)**.
+- **CORS restrito** apenas ao domínio do app (origens não autorizadas são bloqueadas).
+- Segredos (`APP_SENHA`, `APP_SESSION_SECRET`, `DATABASE_URL`) ficam **só em variáveis de ambiente** do servidor — nunca no código nem no repositório. A aplicação **recusa subir em produção** se esses segredos não estiverem configurados.
+- **RLS** habilitado nas tabelas do banco como defesa em profundidade.
+
+> As URLs de produção são mantidas privadas de propósito (uso familiar). Para rodar sua própria instância, veja [Como rodar localmente](#-como-rodar-localmente) e [Deploy](#-deploy).
 
 ---
 
@@ -234,7 +243,7 @@ npm run icons     # regenera os ícones do PWA (usa sharp)
 
 | Variável | Obrigatória | Descrição |
 |---|---|---|
-| `VITE_API_URL` | Não | URL base da API. Se ausente, o app usa `https://controle-casas-api.onrender.com` como padrão. |
+| `VITE_API_URL` | Não | URL base da API. Se ausente, o app usa uma URL padrão definida no código. |
 
 ---
 
