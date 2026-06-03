@@ -24,6 +24,9 @@ class ContaCompartilhada(Base, TimestampMixin):
     competencia: Mapped[str]
     valor_total_centavos: Mapped[int]
     vencimento: Mapped[date]
+    # Snapshot de quantas pessoas da família administradora entraram na contagem
+    # de cabeças no momento do lançamento. Essa parte NÃO é cobrada dos inquilinos.
+    pessoas_administradora: Mapped[int] = mapped_column(default=0)
 
     terreno: Mapped["Terreno"] = relationship(back_populates="contas")  # noqa: F821
     rateios: Mapped[list["RateioConta"]] = relationship(

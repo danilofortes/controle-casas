@@ -6,6 +6,7 @@ from app.models.base import (
     TipoConta,
 )
 from app.models.casa import Casa
+from app.models.configuracao import Configuracao
 from app.models.conta import ContaCompartilhada, RateioConta
 from app.models.despesa import Despesa
 from app.models.morador import Morador
@@ -18,6 +19,7 @@ __all__ = [
     "CategoriaDespesa",
     "Terreno",
     "Casa",
+    "Configuracao",
     "Morador",
     "ContaCompartilhada",
     "RateioConta",
