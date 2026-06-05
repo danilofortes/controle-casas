@@ -16,6 +16,27 @@ O coração do sistema é a **divisão das contas "por cabeça"** (rateio propor
 
 ---
 
+## 👨‍👩‍👧 Sobre o projeto (pessoal)
+
+Projeto pessoal. Meus pais administram aluguéis de casas no mesmo terreno e, por anos, anotavam tudo no caderno. Água e luz chegam num relógio só, o rateio era feito na mão, e era comum perder o fio do que já tinha sido pago ou do que ainda faltava receber.
+
+Fiz o **Casa em Dia** para tirar essa conta do papel e colocar no celular. Não é produto comercial. É a rotina deles virando sistema.
+
+Para rodar de ponta a ponta sem pagar mensalidade, usei só ferramentas gratuitas:
+
+| Camada | Ferramenta | Plano |
+|--------|------------|-------|
+| Banco | [Supabase](https://supabase.com) (PostgreSQL) | Free |
+| API | [Render](https://render.com) | Free |
+| Frontend | [Vercel](https://vercel.com) | Free |
+| Código | Python, FastAPI, React, Vite | Open source |
+
+Hoje o custo fixo é zero. Só entra despesa se algum serviço sair do free tier ou se a família quiser domínio próprio.
+
+O repositório está público para referência técnica. Os dados de produção e as URLs do app ficam privados (uso familiar).
+
+---
+
 ## 🚀 Como funciona em produção
 
 A aplicação roda em uma arquitetura simples de duas camadas, com o banco gerenciado à parte:
@@ -305,4 +326,4 @@ O roteamento SPA é tratado pelo [`frontend/vercel.json`](frontend/vercel.json) 
 
 ## 📄 Licença / nota final
 
-Projeto de **uso pessoal e familiar**, criado para digitalizar o controle de aluguéis dos imóveis da família. Não possui licença pública definida.
+Projeto de uso pessoal e familiar. Veja [Sobre o projeto (pessoal)](#-sobre-o-projeto-pessoal). Não possui licença pública definida.
