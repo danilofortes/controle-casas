@@ -1,10 +1,10 @@
 # 🏠 Casa em Dia
 
-> Gestão de aluguéis dos imóveis da família, sem papel e sem caderninho.
+> Aluguéis da família no celular, sem caderno.
 
-**Casa em Dia** (internamente `controle-casas`) é um app **mobile-first** que digitaliza o controle manual de aluguéis feito pelos pais: casas no mesmo terreno que dividem um relógio de água e um de luz, com cobranças, despesas e relatórios mensais centralizados em um só lugar.
+**Casa em Dia** (`controle-casas`) substitui o caderno que meus pais usavam para controlar os aluguéis. Várias casas no mesmo terreno, um relógio de água, um de luz, cobranças, despesas e o relatório do mês ficam num app só.
 
-O coração do sistema é a **divisão das contas "por cabeça"** (rateio proporcional ao número de moradores de cada casa), incluindo a parte que a **família administradora** paga.
+O rateio "por cabeça" divide água e luz pelo número de moradores de cada casa, incluindo a parte da casa administradora.
 
 ![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
@@ -39,22 +39,22 @@ O repositório está público para referência técnica. Os dados de produção 
 
 ## 🚀 Como funciona em produção
 
-A aplicação roda em uma arquitetura simples de duas camadas, com o banco gerenciado à parte:
+Três peças, banco separado:
 
-- **Frontend** — build estático (Vite) servido por uma CDN. É um PWA mobile-first instalável no celular.
-- **Backend** — API **FastAPI** rodando como serviço web, com deploy contínuo a cada push na branch `main`.
-- **Banco de dados** — **PostgreSQL gerenciado**, acessado apenas pelo backend (nunca direto pelo frontend).
+- **Frontend:** build estático (Vite) na CDN. PWA mobile-first, instalável no celular.
+- **Backend:** API **FastAPI** no Render, com deploy a cada push na `main`.
+- **Banco:** **PostgreSQL** no Supabase. Só o backend acessa.
 
-O frontend conversa **somente** com a API (via `VITE_API_URL`); nenhuma credencial de banco ou chave sensível vai para o navegador.
+O app fala só com a API (`VITE_API_URL`). Nada de credencial de banco ou segredo no navegador.
 
 **Segurança em produção:**
 
-- Acesso protegido por uma **senha única compartilhada** entre a família, com sessão via **JWT (HS256)**.
-- **CORS restrito** apenas ao domínio do app (origens não autorizadas são bloqueadas).
-- Segredos (`APP_SENHA`, `APP_SESSION_SECRET`, `DATABASE_URL`) ficam **só em variáveis de ambiente** do servidor — nunca no código nem no repositório. A aplicação **recusa subir em produção** se esses segredos não estiverem configurados.
-- **RLS** habilitado nas tabelas do banco como defesa em profundidade.
+- Senha única da família, sessão com **JWT (HS256)**.
+- **CORS** limitado ao domínio do app.
+- Segredos (`APP_SENHA`, `APP_SESSION_SECRET`, `DATABASE_URL`) só em variável de ambiente no servidor. Em produção, a API não sobe sem eles.
+- **RLS** nas tabelas do Supabase.
 
-> As URLs de produção são mantidas privadas de propósito (uso familiar). Para rodar sua própria instância, veja [Como rodar localmente](#-como-rodar-localmente) e [Deploy](#-deploy).
+> URLs de produção ficam privadas (uso familiar). Para rodar a sua cópia, veja [Como rodar localmente](#-como-rodar-localmente) e [Deploy](#-deploy).
 
 ---
 
@@ -75,15 +75,15 @@ O frontend conversa **somente** com a API (via `VITE_API_URL`); nenhuma credenci
 
 ## ✨ Principais funcionalidades
 
-- **Cadastros** de terrenos, casas e moradores (com idade/adulto e contagem de pessoas por casa).
-- **Cobranças de aluguel** por casa e por competência (mês), com possibilidade de desconto pontual.
-- **Contas compartilhadas de água e luz** com **divisão "por cabeça"** entre as casas, incluindo a **casa administradora**, que tem um número de moradores **fixo e configurável**.
-- **Despesas** com categorias (manutenção, reparo, imposto, outros).
-- **Relatório mensal**: totais do mês, quebra por tipo (aluguel / água / luz / despesas), visão **por casa** e visão da **casa administradora** (parte de água/luz que a administradora arca).
-- **Marcação de pagamentos** como recebidos (aluguéis e rateios).
-- **Pendências e avisos de vencimento**: destaque para o que está atrasado e o que **vence em até 3 dias**.
-- **Autenticação** por senha compartilhada com sessão via **JWT (HS256)**.
-- **PWA instalável** no celular (mobile-first).
+- Cadastro de terrenos, casas e moradores (idade, adulto, contagem por casa).
+- Cobrança de aluguel por casa e por mês (`YYYY-MM`), com desconto pontual se precisar.
+- Contas de água e luz compartilhadas, rateio "por cabeça", incluindo a **casa administradora** (nº de moradores fixo e configurável).
+- Despesas por categoria (manutenção, reparo, imposto, outros).
+- Relatório mensal: totais, quebra por tipo (aluguel, água, luz, despesas), visão por casa e visão da administradora.
+- Marcar aluguéis e rateios como pagos/recebidos.
+- Pendências e aviso do que vence em até 3 dias.
+- Login com senha compartilhada (**JWT HS256**).
+- PWA instalável no celular.
 
 ---
 
@@ -100,13 +100,13 @@ O frontend conversa **somente** com a API (via `VITE_API_URL`); nenhuma credenci
 **Frontend**
 - **React 18** + **Vite 5** + **TypeScript**
 - **React Router DOM**
-- **CSS puro** (mobile-first) — fonte padrão **Poppins**, destaques em **Inter Bold**, ícones **SVG**, cor primária **`#FF5722`**
-- PWA (ícones gerados com **sharp**)
+- **CSS puro** (mobile-first). Fonte **Poppins**, destaques **Inter Bold**, ícones **SVG**, cor **`#FF5722`**
+- PWA (ícones com **sharp**)
 
 **Banco & Deploy**
-- **PostgreSQL** no **Supabase** (RLS habilitado nas tabelas públicas; cascade deletes via `ondelete=CASCADE` + `passive_deletes`)
-- **Render** (API — auto-deploy no push da `main`)
-- **Vercel** (frontend — deploy manual via CLI)
+- **PostgreSQL** no **Supabase** (RLS; cascade com `ondelete=CASCADE` + `passive_deletes`)
+- **Render** (API, auto-deploy na `main`)
+- **Vercel** (frontend, deploy manual via CLI)
 
 ---
 
@@ -154,27 +154,27 @@ controle-casas/
 
 ### Divisão "por cabeça" (rateio)
 
-As contas de **água** e **luz** chegam por um único relógio do terreno e precisam ser divididas entre as casas. A divisão é **proporcional ao número de moradores** de cada casa:
+Água e luz chegam num relógio só do terreno. O valor de cada casa segue o número de moradores:
 
-- O valor de cada casa é `floor(total × pessoas ÷ total_de_pessoas)`, em **centavos**.
-- A sobra de centavos do arredondamento é distribuída pelo **método dos maiores restos** (largest remainder), de forma **determinística**, garantindo que a soma das fatias seja **exatamente** o valor total.
-- A **casa administradora** participa do rateio com um número de moradores **fixo e configurável** (preferência global `moradores_administradora`), refletindo a parte que a própria família que administra paga.
-- O número de pessoas é registrado como **snapshot** no momento do lançamento, para não distorcer contas antigas quando a composição das casas mudar.
+- Cálculo: `floor(total × pessoas ÷ total_de_pessoas)`, em **centavos**.
+- Centavos que sobram no arredondamento vão pelo **método dos maiores restos**, de forma fixa. A soma das fatias bate com o total.
+- A **casa administradora** entra no rateio com nº de moradores fixo (`moradores_administradora`).
+- O nº de pessoas fica gravado no lançamento (snapshot). Se alguém mudar de casa depois, a conta antiga não muda.
 
-> Valores monetários são sempre tratados em **centavos (int)** — nunca em `float`.
+> Dinheiro sempre em **centavos (int)**. Sem `float`.
 
 ### Cobranças e competência
 
-Cada cobrança de aluguel e cada conta compartilhada pertence a uma **competência** no formato `YYYY-MM` (mês de referência). Aluguéis e rateios podem ser marcados como **pagos/recebidos**.
+Aluguel e conta compartilhada pertencem a uma **competência** `YYYY-MM`. Dá para marcar como pago/recebido.
 
 ### Relatório mensal
 
-Para uma competência, o relatório consolida:
+Por competência, o relatório mostra:
 
-- **Totais** do mês.
-- **Quebra** por tipo: aluguel, água, luz e despesas.
-- Visão **por casa**.
-- Visão da **casa administradora** (parcela de água/luz que a administradora arca).
+- Totais do mês.
+- Quebra por tipo: aluguel, água, luz, despesas.
+- Visão por casa.
+- Visão da casa administradora (parcela de água/luz que ela paga).
 
 ---
 
@@ -184,11 +184,11 @@ Para uma competência, o relatório consolida:
 
 - **Python 3.12+**
 - **Node.js** (18+) e **npm**
-- Um **PostgreSQL** acessível (Supabase ou local). Para os **testes**, o banco não é necessário (usa SQLite em memória).
+- **PostgreSQL** (Supabase ou local). Nos **testes**, não precisa: roda com SQLite em memória.
 
 ### Backend
 
-Os comandos abaixo usam **Windows / PowerShell**. Em macOS/Linux, troque a ativação do venv por `source .venv/bin/activate`.
+Comandos em **Windows / PowerShell**. No macOS/Linux, use `source .venv/bin/activate` no lugar do passo 1.
 
 ```powershell
 cd backend
@@ -218,7 +218,7 @@ uvicorn app.main:app --reload
 - Swagger: http://127.0.0.1:8000/docs
 - Health check: http://127.0.0.1:8000/api/health
 
-**Autenticação:** faça `POST /api/auth/login` com `{ "senha": "<APP_SENHA>" }`, receba o `access_token` e envie-o nas demais rotas no header `Authorization: Bearer <token>` (ou use o botão **Authorize** no Swagger).
+**Autenticação:** `POST /api/auth/login` com `{ "senha": "<APP_SENHA>" }`, pegue o `access_token` e mande nas rotas em `Authorization: Bearer <token>` (ou **Authorize** no Swagger).
 
 ### Frontend
 
@@ -230,13 +230,13 @@ npm install
 
 # 2) variáveis de ambiente
 cp .env.example .env
-# defina VITE_API_URL (ex.: http://127.0.0.1:8000 para apontar para a API local)
+# defina VITE_API_URL (ex.: http://127.0.0.1:8000)
 
 # 3) modo desenvolvimento
 npm run dev
 ```
 
-Outros scripts disponíveis:
+Outros scripts:
 
 ```bash
 npm run build     # type-check (tsc -b) + build de produção (vite build)
@@ -252,25 +252,25 @@ npm run icons     # regenera os ícones do PWA (usa sharp)
 
 | Variável | Obrigatória | Descrição |
 |---|---|---|
-| `DATABASE_URL` | Sim | String de conexão do PostgreSQL **com o driver asyncpg** (ex.: `postgresql+asyncpg://USUARIO:SENHA@HOST:PORTA/postgres`). Suporta a conexão direta (5432) ou o pooler do Supabase (6543). |
-| `APP_SENHA` | Sim | Senha única compartilhada de acesso ao sistema. |
-| `APP_SESSION_SECRET` | Sim | Segredo longo e aleatório usado para assinar o JWT (HS256). |
-| `APP_SESSION_EXPIRE_MINUTES` | Não | Validade do token de sessão, em minutos (padrão: `43200`, ou seja, 30 dias). |
-| `APP_CORS_ORIGINS` | Não | Origens permitidas para CORS, separadas por vírgula (padrão: `*`). |
+| `DATABASE_URL` | Sim | PostgreSQL com **asyncpg** (ex.: `postgresql+asyncpg://USUARIO:SENHA@HOST:PORTA/postgres`). Porta 5432 direta ou 6543 (pooler Supabase). |
+| `APP_SENHA` | Sim | Senha única de acesso. |
+| `APP_SESSION_SECRET` | Sim | Segredo longo para assinar o JWT (HS256). |
+| `APP_SESSION_EXPIRE_MINUTES` | Não | Validade do token em minutos (padrão: `43200`, 30 dias). |
+| `APP_CORS_ORIGINS` | Não | Origens CORS, separadas por vírgula (padrão: `*`). |
 
-> No deploy (Render), o `PYTHON_VERSION` também é definido (`3.12.4`).
+> No Render, `PYTHON_VERSION` = `3.12.4`.
 
 ### Frontend (`frontend/.env`)
 
 | Variável | Obrigatória | Descrição |
 |---|---|---|
-| `VITE_API_URL` | Não | URL base da API. Se ausente, o app usa uma URL padrão definida no código. |
+| `VITE_API_URL` | Não | URL da API. Se vazio, usa o padrão do código. |
 
 ---
 
 ## 🗃️ Migrations (Alembic)
 
-A partir de `backend/`, com a `DATABASE_URL` configurada:
+Em `backend/`, com `DATABASE_URL` configurada:
 
 ```bash
 # aplicar todas as migrations pendentes
@@ -283,17 +283,17 @@ alembic revision --autogenerate -m "descricao da mudanca"
 alembic downgrade -1
 ```
 
-As migrations versionadas incluem o schema inicial, a configuração da administradora, campos de morador (adulto/idade), o **RLS** das tabelas públicas (`0005_enable_rls`) e os **cascade deletes** (`0006_cascade_deletes`).
+Migrations versionadas: schema inicial, administradora, morador (adulto/idade), **RLS** (`0005_enable_rls`), **cascade deletes** (`0006_cascade_deletes`).
 
 ---
 
 ## 🧪 Testes
 
-Os testes ficam em `backend/tests/` e usam **pytest**. Os testes de domínio (ênfase no rateio) não dependem de banco, e os testes de API usam **SQLite em memória** (`aiosqlite`) — ou seja, rodam sem Postgres.
+Testes em `backend/tests/` com **pytest**. Domínio (rateio) não usa banco. API usa **SQLite em memória** (`aiosqlite`).
 
 ```bash
 cd backend
-pip install -e ".[dev]"   # garante pytest, pytest-asyncio, httpx e aiosqlite
+pip install -e ".[dev]"   # pytest, pytest-asyncio, httpx, aiosqlite
 pytest
 ```
 
@@ -301,29 +301,29 @@ pytest
 
 ## 📦 Deploy
 
-### API — Render
+### API (Render)
 
-O deploy é descrito em [`render.yaml`](render.yaml) (serviço web `controle-casas-api`):
+[`render.yaml`](render.yaml), serviço `controle-casas-api`:
 
 - **Build:** `pip install -r requirements.txt`
 - **Start:** `alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT`
 - **Health check:** `/api/health`
-- **Auto-deploy:** a cada `git push` na branch `main`.
-- Os segredos (`DATABASE_URL`, `APP_SENHA`, `APP_SESSION_SECRET`) são definidos no painel do Render (Environment) — **não** ficam versionados.
+- **Auto-deploy:** push na `main`
+- Segredos no painel do Render. Nada versionado no Git.
 
-### Frontend — Vercel (manual)
+### Frontend (Vercel, manual)
 
-A Vercel **não** está conectada ao Git neste projeto. O deploy do frontend é **manual**, a partir da pasta `frontend/`:
+A Vercel não está ligada ao Git. Deploy manual em `frontend/`:
 
 ```bash
 cd frontend
 npx vercel deploy --prod --yes
 ```
 
-O roteamento SPA é tratado pelo [`frontend/vercel.json`](frontend/vercel.json) (rewrite de todas as rotas para `index.html`). Defina `VITE_API_URL` nas variáveis de ambiente do projeto na Vercel.
+SPA via [`frontend/vercel.json`](frontend/vercel.json) (rewrite para `index.html`). Configure `VITE_API_URL` na Vercel.
 
 ---
 
 ## 📄 Licença / nota final
 
-Projeto de uso pessoal e familiar. Veja [Sobre o projeto (pessoal)](#-sobre-o-projeto-pessoal). Não possui licença pública definida.
+Projeto de uso pessoal e familiar. Detalhes em [Sobre o projeto (pessoal)](#-sobre-o-projeto-pessoal). Sem licença pública definida.
