@@ -2,7 +2,7 @@
 
 > Gestão de aluguéis dos imóveis da família, sem papel e sem caderninho.
 
-**Casa em Dia** (internamente `controle-casas`) é um app **mobile-first** que digitaliza o controle manual de aluguéis feito pelos pais: casas no mesmo terreno que dividem um relógio de água e um de luz, com cobranças, despesas e relatórios mensais centralizados em um só lugar.
+**Casa em Dia** (internamente `controle-casas`) é um app **mobile-first** que digitaliza o controle manual de aluguéis feito para meus pais: casas no mesmo terreno que dividem um relógio de água e um de luz, com cobranças, despesas e relatórios mensais centralizados em um só lugar.
 
 O coração do sistema é a **divisão das contas "por cabeça"** (rateio proporcional ao número de moradores de cada casa), incluindo a parte que a **família administradora** paga.
 
