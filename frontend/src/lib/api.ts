@@ -1,5 +1,3 @@
-import { handleMockRequest, USE_MOCK } from "./mock";
-
 const BASE_URL =
   import.meta.env.VITE_API_URL ?? "https://controle-casas-api.onrender.com";
 
@@ -29,14 +27,6 @@ export class ApiError extends Error {
 export const onUnauthorized = new EventTarget();
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  if (USE_MOCK) {
-    const method = options.method ?? "GET";
-    const body = options.body
-      ? (JSON.parse(options.body as string) as unknown)
-      : undefined;
-    return handleMockRequest<T>(method, path, body);
-  }
-
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...(options.headers as Record<string, string>),

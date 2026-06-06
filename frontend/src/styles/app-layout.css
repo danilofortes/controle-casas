@@ -131,16 +131,6 @@
   position: relative;
 }
 
-.mock-banner {
-  background: var(--secondary-tint);
-  color: var(--ink);
-  text-align: center;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 8px 16px;
-  border-bottom: 1px solid var(--line);
-}
-
 .app-main-inner {
   flex: 1;
   width: 100%;
