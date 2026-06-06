@@ -14,7 +14,6 @@ import {
   setToken,
   type LoginResponse,
 } from "../lib/api";
-import { MOCK_TOKEN, USE_MOCK } from "../lib/mock";
 
 interface AuthContextValue {
   autenticado: boolean;
@@ -25,13 +24,7 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [autenticado, setAutenticado] = useState<boolean>(() =>
-    USE_MOCK ? true : !!getToken(),
-  );
-
-  useEffect(() => {
-    if (USE_MOCK && !getToken()) setToken(MOCK_TOKEN);
-  }, []);
+  const [autenticado, setAutenticado] = useState<boolean>(() => !!getToken());
 
   useEffect(() => {
     const handler = () => setAutenticado(false);
@@ -43,11 +36,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => ({
       autenticado,
       async entrar(senha: string) {
-        if (USE_MOCK) {
-          setToken(MOCK_TOKEN);
-          setAutenticado(true);
-          return;
-        }
         const res = await api.post<LoginResponse>("/auth/login", { senha });
         setToken(res.access_token);
         setAutenticado(true);
