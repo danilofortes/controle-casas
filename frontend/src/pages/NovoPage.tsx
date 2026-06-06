@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Icon, type IconName } from "../components/Icon";
+import { PageHeader } from "../components/PageHeader";
 import { Modal } from "../components/Modal";
 import {
   AluguelForm,
@@ -94,15 +95,16 @@ export function NovoPage() {
   }
 
   return (
-    <>
+    <div className="apex-page">
       {toast && <div className="toast">{toast}</div>}
 
-      <header className="screen-header">
-        <h1>Novo lançamento</h1>
-        <p className="subtitle">O que você quer cadastrar?</p>
-      </header>
+      <PageHeader
+        title="Novo lançamento"
+        subtitle="Cadastre terreno, casa, morador ou cobrança"
+        showNovo={false}
+      />
 
-      <div className="screen-body">
+      <div className="apex-panel">
         {OPCOES.map((o) => (
           <button
             className="list-item list-item-btn"
@@ -126,6 +128,6 @@ export function NovoPage() {
           {renderForm(aberto)}
         </Modal>
       )}
-    </>
+    </div>
   );
 }

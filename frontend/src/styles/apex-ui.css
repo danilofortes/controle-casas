@@ -1,0 +1,1209 @@
+/* Design system Apex Finance adaptado ao Casa em Dia (paleta paprika) */
+
+.apex-app {
+  --apex-bg: #f4f1f3;
+  --apex-sidebar: #faf8f9;
+  --apex-ink: var(--black);
+  --apex-muted: var(--grey);
+  --apex-line: #ddd5da;
+  --apex-card: #ffffff;
+  --apex-primary: var(--spicy-paprika);
+  --apex-primary-dark: #8a3a24;
+  --apex-primary-soft: var(--accent-tint);
+  --apex-green: #1f8a55;
+  --apex-green-soft: #e3f5ec;
+  --apex-warn: var(--spicy-paprika);
+  --apex-warn-soft: var(--accent-tint);
+  --apex-secondary: var(--apricot-cream);
+  --apex-secondary-soft: var(--secondary-tint);
+  --apex-radius: 18px;
+  --apex-radius-sm: 12px;
+  --apex-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.app-layout.apex-app {
+  background: var(--apex-bg);
+  color: var(--apex-ink);
+  font-size: 14px;
+}
+
+/* Sidebar */
+.apex-app .app-sidebar {
+  background: var(--apex-sidebar);
+  border-right: 1px solid var(--apex-line);
+  padding: 24px 16px;
+}
+
+.apex-app .app-brand-icon {
+  background: var(--apex-green-soft);
+  color: var(--apex-green);
+}
+
+.apex-app .app-nav-item:hover,
+.apex-app .app-nav-item.is-active {
+  background: var(--apex-primary-soft);
+  color: var(--apex-primary);
+}
+
+.apex-app .app-nav-item.is-cta {
+  background: var(--apex-primary);
+  box-shadow: 0 4px 14px rgba(207, 92, 54, 0.28);
+}
+
+.apex-app .app-sidebar-card {
+  background: var(--apex-card);
+  border-color: var(--apex-line);
+}
+
+.apex-quick-stat {
+  padding: 12px;
+  border-radius: var(--apex-radius-sm);
+  background: var(--apex-card);
+  border: 1px solid var(--apex-line);
+  margin-bottom: 8px;
+}
+
+.apex-quick-stat-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--apex-muted);
+}
+
+.apex-quick-stat-value {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--apex-ink);
+}
+
+.apex-progress {
+  height: 6px;
+  border-radius: 99px;
+  background: var(--apex-line);
+  overflow: hidden;
+}
+
+.apex-progress-fill {
+  height: 100%;
+  border-radius: 99px;
+}
+
+.apex-progress-fill.primary {
+  background: linear-gradient(90deg, var(--apex-primary), var(--apex-primary-dark));
+}
+
+.apex-progress-fill.secondary {
+  background: linear-gradient(90deg, #f0d9a8, var(--apex-secondary));
+}
+
+.apex-badge-up {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--apex-green);
+  background: var(--apex-green-soft);
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+
+.apex-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+}
+
+.apex-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--apex-secondary), var(--apex-primary));
+  flex-shrink: 0;
+}
+
+.apex-user-name {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.apex-user-email {
+  font-size: 11px;
+  color: var(--apex-muted);
+}
+
+/* Main area */
+.apex-app .app-main-inner {
+  max-width: 1280px;
+  padding: 28px 24px 40px;
+}
+
+.apex-page {
+  width: 100%;
+}
+
+.apex-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.apex-greeting h1 {
+  margin: 0 0 4px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.apex-greeting p {
+  margin: 0;
+  color: var(--apex-muted);
+  font-size: 14px;
+}
+
+.apex-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.apex-icon-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--apex-line);
+  background: var(--apex-card);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  position: relative;
+  color: var(--apex-muted);
+}
+
+.apex-icon-btn .dot {
+  position: absolute;
+  top: 10px;
+  right: 11px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--apex-primary);
+  border: 2px solid var(--apex-card);
+}
+
+.apex-btn-primary {
+  background: var(--apex-primary);
+  color: #fff;
+  border: none;
+  border-radius: 99px;
+  padding: 11px 20px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 14px rgba(207, 92, 54, 0.25);
+  white-space: nowrap;
+}
+
+.apex-btn-primary:hover {
+  filter: brightness(0.95);
+}
+
+.apex-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.apex-btn-primary.full {
+  width: 100%;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.apex-btn-ghost {
+  border: 1px solid var(--apex-line);
+  background: var(--apex-card);
+  border-radius: 99px;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--apex-ink);
+}
+
+/* Stats row */
+.apex-stats,
+.dash-stats {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.apex-stat-card,
+.dash-stat {
+  border-radius: var(--apex-radius);
+  padding: 22px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.apex-stat-card.balance,
+.dash-stat.hero {
+  background: linear-gradient(135deg, var(--apex-primary) 0%, var(--black) 100%);
+  color: #fff;
+  box-shadow: var(--apex-shadow);
+  border: none;
+}
+
+.apex-stat-card.plain,
+.dash-stat.plain {
+  background: var(--apex-card);
+  border: 1px solid var(--apex-line);
+  box-shadow: var(--apex-shadow);
+}
+
+.apex-stat-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.apex-stat-label,
+.dash-stat-label {
+  font-size: 13px;
+  color: var(--apex-muted);
+  font-weight: 500;
+}
+
+.apex-stat-card.balance .apex-stat-label,
+.dash-stat.hero .dash-stat-label {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.apex-stat-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+}
+
+.apex-stat-card.balance .apex-stat-icon {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.apex-stat-card.plain .apex-stat-icon.green {
+  background: var(--apex-green-soft);
+  color: var(--apex-green);
+}
+
+.apex-stat-card.plain .apex-stat-icon.warn {
+  background: var(--apex-warn-soft);
+  color: var(--apex-warn);
+}
+
+.apex-stat-value,
+.dash-stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 10px;
+}
+
+.apex-trend,
+.dash-stat-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 99px;
+}
+
+.apex-trend.up,
+.dash-stat.hero .dash-stat-trend {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--apricot-cream);
+}
+
+.apex-stat-card.plain .apex-trend.up {
+  background: var(--apex-green-soft);
+  color: var(--apex-green);
+}
+
+.apex-trend.down {
+  background: var(--apex-warn-soft);
+  color: var(--apex-warn);
+}
+
+/* Grids */
+.apex-grid-mid,
+.apex-grid-bottom {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.apex-grid-mid {
+  grid-template-columns: 2fr 1fr;
+}
+
+.apex-grid-bottom {
+  grid-template-columns: 1.4fr 1fr;
+}
+
+/* Panels */
+.apex-panel,
+.dash-panel,
+.apex-app .card {
+  background: var(--apex-card);
+  border: 1px solid var(--apex-line);
+  border-radius: var(--apex-radius);
+  padding: 22px 24px;
+  box-shadow: var(--apex-shadow);
+}
+
+.apex-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.apex-panel-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.apex-panel-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.apex-select {
+  border: 1px solid var(--apex-line);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 12px;
+  color: var(--apex-muted);
+  background: var(--apex-card);
+}
+
+/* Charts */
+.apex-chart-legend {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: var(--apex-muted);
+}
+
+.apex-legend-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.apex-chart-wrap {
+  width: 100%;
+  overflow: hidden;
+}
+
+.apex-donut-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.apex-donut-legend {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.apex-donut-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.apex-donut-row-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--apex-muted);
+}
+
+.apex-donut-row-value {
+  font-weight: 600;
+  color: var(--apex-ink);
+}
+
+/* Casa cards no dashboard */
+.apex-casa-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--apex-line);
+  gap: 12px;
+}
+
+.apex-casa-card:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.apex-casa-card:first-child {
+  padding-top: 0;
+}
+
+.apex-casa-nome {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.apex-casa-sub {
+  font-size: 12px;
+  color: var(--apex-muted);
+  margin-top: 2px;
+}
+
+.apex-casa-valor {
+  font-weight: 700;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.apex-casa-valor.is-open {
+  color: var(--apex-primary);
+}
+
+/* Quick actions (AtalhosRapidos) — entre header e stats */
+.apex-page > .atalhos {
+  margin: -12px 0 20px;
+  padding: 0 2px;
+}
+
+.apex-app .atalhos {
+  gap: 16px;
+}
+
+.apex-app .atalho-icone {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: var(--apex-card);
+  border: 1px solid var(--apex-line);
+  box-shadow: var(--apex-shadow);
+  display: grid;
+  place-items: center;
+}
+
+.atalho-mais {
+  position: absolute;
+  right: 9px;
+  bottom: 9px;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.atalho-mais svg {
+  stroke-width: 3.5;
+}
+
+.apex-app .atalho-label {
+  color: var(--ink-soft);
+}
+
+.apex-actions-row {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  margin-bottom: 20px;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.apex-actions-row::-webkit-scrollbar {
+  display: none;
+}
+
+.apex-action-tile {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 72px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--apex-muted);
+  font-size: 12px;
+}
+
+.apex-action-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--apex-card);
+  border: 1px solid var(--apex-line);
+  box-shadow: var(--apex-shadow);
+  display: grid;
+  place-items: center;
+  color: var(--apex-primary);
+}
+
+/* Month nav apex */
+.apex-month-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--apex-card);
+  border: 1px solid var(--apex-line);
+  border-radius: 99px;
+  padding: 4px 6px;
+}
+
+.apex-month-nav button {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  color: var(--apex-primary);
+  background: var(--apex-primary-soft);
+  display: grid;
+  place-items: center;
+}
+
+.apex-month-nav span {
+  font-weight: 600;
+  font-size: 13px;
+  padding: 0 8px;
+  min-width: 120px;
+  text-align: center;
+}
+
+.apex-month-nav span::first-letter {
+  text-transform: uppercase;
+}
+
+/* List items apex */
+.apex-app .list-item {
+  border-radius: var(--apex-radius-sm);
+  box-shadow: none;
+  margin-bottom: 10px;
+}
+
+.apex-app .badge-icon {
+  border-radius: 12px;
+  background: var(--apex-secondary-soft);
+  color: var(--apex-primary);
+}
+
+.apex-app .badge-icon.is-accent {
+  background: var(--apex-primary);
+  color: #fff;
+}
+
+.apex-app .section-title {
+  font-size: 16px;
+  margin: 0 0 16px;
+}
+
+.apex-app .quebra-card {
+  border: 1px solid var(--apex-line);
+  box-shadow: none;
+}
+
+.apex-app .quebra-icone {
+  background: var(--apex-primary-soft);
+  color: var(--apex-primary);
+}
+
+.apex-app .quebra-pct {
+  background: var(--apex-primary-soft);
+  color: var(--apex-primary);
+  font-family: inherit;
+}
+
+/* Terreno groups */
+.apex-app .terreno-group {
+  border-radius: var(--apex-radius);
+  border: 1px solid var(--apex-line);
+  box-shadow: var(--apex-shadow);
+  margin-bottom: 14px;
+}
+
+/* Login split */
+.apex-login {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--apex-bg);
+}
+
+.apex-login-hero {
+  background: linear-gradient(145deg, var(--apex-primary) 0%, var(--black) 100%);
+  color: #fff;
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+  min-height: 0;
+}
+
+.apex-login-brand {
+  display: flex;
+  align-items: center;
+}
+
+.apex-login-brand img {
+  width: 120px;
+  height: 120px;
+  display: block;
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.22));
+}
+
+.apex-login-hero h1 {
+  margin: 0;
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.apex-login-hero p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.82);
+  max-width: 400px;
+}
+
+.apex-login-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.apex-login-stat {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--apex-radius-sm);
+  padding: 16px;
+}
+
+.apex-login-stat strong {
+  display: block;
+  font-size: 22px;
+  margin-bottom: 4px;
+}
+
+.apex-login-stat span {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.apex-login-form {
+  display: grid;
+  place-items: center;
+  padding: 32px;
+}
+
+.apex-login-form-inner {
+  width: 100%;
+  max-width: 400px;
+}
+
+/* Bottom nav mobile */
+.apex-app .bottom-nav {
+  background: var(--apex-card);
+  border-top: 1px solid var(--apex-line);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.apex-app .nav-btn.active {
+  color: var(--apex-primary);
+}
+
+.apex-app .nav-fab {
+  background: var(--apex-primary);
+  box-shadow: 0 6px 18px rgba(207, 92, 54, 0.35);
+}
+
+/* Buttons global in apex context */
+.apex-app .btn {
+  background: var(--apex-primary);
+  box-shadow: 0 4px 14px rgba(207, 92, 54, 0.2);
+}
+
+.apex-app .btn-ghost {
+  background: var(--apex-primary-soft);
+  color: var(--apex-primary);
+  box-shadow: none;
+}
+
+/* Budget Overview — gráfico flutuante */
+.budget-chart-panel {
+  background: var(--apex-card);
+  border: 1px solid var(--apex-line);
+  border-radius: var(--apex-radius);
+  padding: 22px 24px 20px;
+  box-shadow: var(--apex-shadow);
+  margin-bottom: 20px;
+}
+
+.budget-chart-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--apex-line);
+  flex-wrap: wrap;
+}
+
+.budget-chart-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--apex-ink);
+}
+
+.budget-chart-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.budget-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border: 1px solid var(--apex-line);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--apex-muted);
+  background: var(--apex-card);
+}
+
+.budget-chart-body {
+  position: relative;
+  min-height: 240px;
+}
+
+.budget-chart-svg {
+  display: block;
+}
+
+.budget-float-cards {
+  position: absolute;
+  top: 8px;
+  transform: translateX(-20%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(220px, 42vw);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.budget-float-card {
+  background: var(--apex-card);
+  border: 1px solid var(--apex-line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.budget-float-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--apex-muted);
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.budget-float-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.budget-float-date {
+  margin-left: auto;
+  font-size: 11px;
+}
+
+.budget-float-value {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--apex-ink);
+}
+
+@media (max-width: 700px) {
+  .budget-float-cards {
+    position: static;
+    transform: none;
+    width: 100%;
+    margin-top: 12px;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .budget-float-card {
+    flex: 1;
+    min-width: 140px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .apex-stats,
+  .dash-stats,
+  .apex-grid-mid,
+  .apex-grid-bottom {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .apex-app .app-main-inner {
+    padding: 20px 16px calc(var(--nav-h) + 24px);
+  }
+
+  .apex-login {
+    grid-template-columns: 1fr;
+    min-height: 100dvh;
+    align-content: start;
+  }
+
+  .apex-login-hero {
+    padding: max(24px, env(safe-area-inset-top)) 24px 28px;
+    justify-content: flex-start;
+    gap: 16px;
+  }
+
+  .apex-login-brand img {
+    width: 96px;
+    height: 96px;
+  }
+
+  .apex-login-hero h1 {
+    font-size: 26px;
+  }
+
+  .apex-login-form {
+    padding: 24px 20px 32px;
+    align-content: start;
+  }
+
+  .apex-header {
+    margin-bottom: 20px;
+  }
+
+  .apex-btn-primary.hide-mobile {
+    display: none;
+  }
+}
+
+/* Documentos */
+.doc-casa-picker {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-bottom: 20px;
+  scrollbar-width: none;
+}
+
+.doc-casa-picker::-webkit-scrollbar {
+  display: none;
+}
+
+.doc-casa-pill {
+  flex-shrink: 0;
+  border: 1px solid var(--apex-line);
+  background: var(--apex-card);
+  color: var(--apex-muted);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.doc-casa-pill.active {
+  background: var(--apex-accent);
+  border-color: var(--apex-accent);
+  color: var(--white);
+}
+
+.doc-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.doc-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 8px;
+  border: 1px solid var(--apex-line);
+  border-radius: var(--apex-radius-sm, 10px);
+  background: var(--apex-card);
+  color: var(--apex-muted);
+  font-size: 12px;
+  font-weight: 600;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+.doc-tab.active {
+  border-color: var(--apex-accent);
+  color: var(--apex-text);
+  background: color-mix(in srgb, var(--apex-accent) 12%, var(--apex-card));
+}
+
+.doc-tab-count {
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--apex-line);
+  color: var(--apex-muted);
+  border-radius: 999px;
+  padding: 1px 7px;
+  min-width: 20px;
+  text-align: center;
+}
+
+.doc-tab.active .doc-tab-count {
+  background: var(--apex-accent);
+  color: var(--white);
+}
+
+.doc-section {
+  margin-bottom: 24px;
+}
+
+.doc-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--apex-muted);
+}
+
+.doc-empty p {
+  margin: 0;
+}
+
+.doc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.doc-list-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--apex-line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--apex-bg) 40%, var(--apex-card));
+}
+
+.doc-list-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--apex-accent) 14%, var(--apex-card));
+  color: var(--apex-accent);
+  flex-shrink: 0;
+}
+
+.doc-list-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.doc-list-body strong {
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.doc-list-body span {
+  font-size: 12px;
+  color: var(--apex-muted);
+}
+
+.doc-list-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.doc-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--apex-muted);
+  transition: background 0.15s, color 0.15s;
+}
+
+.doc-icon-btn:hover {
+  background: var(--apex-line);
+  color: var(--apex-text);
+}
+
+.doc-icon-btn.danger:hover {
+  background: color-mix(in srgb, var(--apex-accent) 18%, var(--apex-card));
+  color: var(--apex-accent);
+}
+
+.doc-foto-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .doc-foto-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.doc-foto-card {
+  border: 1px solid var(--apex-line);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--apex-card);
+}
+
+.doc-foto-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.doc-foto-meta {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+}
+
+.doc-foto-meta strong {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+
+.doc-foto-meta span {
+  font-size: 11px;
+  color: var(--apex-muted);
+}
+
+.doc-nota-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.doc-nota-card {
+  border: 1px solid var(--apex-line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  background: color-mix(in srgb, var(--apex-bg) 40%, var(--apex-card));
+}
+
+.doc-nota-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.doc-nota-head h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.doc-nota-card p {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: var(--apex-muted);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.doc-nota-data {
+  font-size: 11px;
+  color: var(--apex-muted);
+}
+
+@media (min-width: 900px) {
+  .apex-app .app-sidebar {
+    display: flex;
+  }
+
+  .apex-app .bottom-nav {
+    display: none;
+  }
+}

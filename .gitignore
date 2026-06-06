@@ -16,6 +16,9 @@ venv/
 # Cursor (mcp.json contém tokens/chaves — NÃO comitar)
 .cursor/mcp.json
 
+# Node (monorepo root)
+node_modules/
+
 # Sistema operacional / editores
 .DS_Store
 Thumbs.db

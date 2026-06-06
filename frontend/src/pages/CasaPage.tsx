@@ -25,6 +25,7 @@ import { Alert } from "../components/Alert";
 import { Modal } from "../components/Modal";
 import { ConfirmarExclusao } from "../components/ConfirmarExclusao";
 import { Icon } from "../components/Icon";
+import { PageHeader } from "../components/PageHeader";
 import { CobrancasCasa, ROTULO } from "../components/CobrancasCasa";
 
 type Aba = "cobrancas" | "moradores";
@@ -79,20 +80,25 @@ export function CasaPage() {
   );
 
   return (
-    <>
-      <header className="screen-header">
-        <button
-          className="back-btn"
-          aria-label="Voltar"
-          onClick={() => navigate("/casas")}
-        >
-          <Icon name="chevronLeft" size={22} />
-        </button>
-        <h1>{casa.data?.nome ?? "Casa"}</h1>
-        <p className="subtitle">Cobranças e moradores</p>
-      </header>
+    <div className="apex-page">
+      <PageHeader
+        title={casa.data?.nome ?? "Casa"}
+        subtitle="Cobranças e moradores"
+        showNovo={false}
+        actions={
+          <button
+            type="button"
+            className="apex-btn-ghost"
+            aria-label="Voltar"
+            onClick={() => navigate("/casas")}
+          >
+            <Icon name="chevronLeft" size={16} />
+            Voltar
+          </button>
+        }
+      />
 
-      <div className="screen-body">
+      <div className="apex-panel">
         <div className="tabs">
           <button
             className={aba === "cobrancas" ? "active" : ""}
@@ -146,7 +152,7 @@ export function CasaPage() {
           onCancelar={() => setConfirmandoCasa(false)}
         />
       )}
-    </>
+    </div>
   );
 }
 

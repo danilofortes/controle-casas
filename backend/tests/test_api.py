@@ -475,3 +475,79 @@ async def test_competencia_invalida_422(auth_client):
         },
     )
     assert r.status_code == 422
+
+
+_PNG_1PX = (
+    "data:image/png;base64,"
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
+)
+
+
+@pytest.mark.asyncio
+async def test_documentos_crud(auth_client):
+    client = auth_client
+    terreno_id = await _criar_terreno(client, "Doc Terreno")
+    casa_id = await _criar_casa(client, terreno_id, "Casa Docs")
+
+    r = await client.get(f"/api/casas/{casa_id}/documentos")
+    assert r.status_code == 200, r.text
+    vazio = r.json()
+    assert vazio["pdfs"] == []
+    assert vazio["fotos"] == []
+    assert vazio["anotacoes"] == []
+    assert vazio["casa_nome"] == "Casa Docs"
+
+    r = await client.post(
+        f"/api/casas/{casa_id}/documentos/anotacoes",
+        json={"titulo": "Chave reserva", "texto": "Com o vizinho."},
+    )
+    assert r.status_code == 201, r.text
+    nota = r.json()
+    nota_id = nota["id"]
+    assert nota["titulo"] == "Chave reserva"
+
+    r = await client.put(
+        f"/api/documentos/anotacoes/{nota_id}",
+        json={"titulo": "Chave atualizada", "texto": "Devolver ao sair."},
+    )
+    assert r.status_code == 200, r.text
+    assert r.json()["titulo"] == "Chave atualizada"
+
+    r = await client.post(
+        f"/api/casas/{casa_id}/documentos/pdfs",
+        json={
+            "nome": "contrato.pdf",
+            "tamanho_bytes": 1200,
+            "url": "https://example.com/contrato.pdf",
+        },
+    )
+    assert r.status_code == 201, r.text
+    pdf_id = r.json()["id"]
+
+    r = await client.post(
+        f"/api/casas/{casa_id}/documentos/fotos",
+        json={"legenda": "Fachada", "url": _PNG_1PX},
+    )
+    assert r.status_code == 201, r.text
+    foto_id = r.json()["id"]
+    assert r.json()["legenda"] == "Fachada"
+
+    r = await client.get(f"/api/casas/{casa_id}/documentos")
+    assert r.status_code == 200, r.text
+    bundle = r.json()
+    assert len(bundle["pdfs"]) == 1
+    assert len(bundle["fotos"]) == 1
+    assert len(bundle["anotacoes"]) == 1
+
+    r = await client.delete(f"/api/documentos/pdfs/{pdf_id}")
+    assert r.status_code == 204, r.text
+    r = await client.delete(f"/api/documentos/fotos/{foto_id}")
+    assert r.status_code == 204, r.text
+    r = await client.delete(f"/api/documentos/anotacoes/{nota_id}")
+    assert r.status_code == 204, r.text
+
+    r = await client.get(f"/api/casas/{casa_id}/documentos")
+    assert r.status_code == 200, r.text
+    assert r.json()["pdfs"] == []
+    assert r.json()["fotos"] == []
+    assert r.json()["anotacoes"] == []

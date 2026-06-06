@@ -19,6 +19,7 @@ const ATALHOS: Atalho[] = [
   { label: "Despesa", icon: "receipt", form: "despesa" },
   { label: "Terreno", icon: "map", form: "terreno" },
   { label: "Relatório", icon: "chart", to: "/relatorio" },
+  { label: "Ajustes", icon: "settings", to: "/ajustes" },
 ];
 
 /**
@@ -35,14 +36,23 @@ export function AtalhosRapidos() {
 
   return (
     <div className="atalhos">
-      {ATALHOS.map((a) => (
-        <button key={a.label} className="atalho" onClick={() => abrir(a)}>
-          <span className="atalho-icone">
-            <Icon name={a.icon} size={24} color="var(--ink-soft)" />
-          </span>
-          <span className="atalho-label">{a.label}</span>
-        </button>
-      ))}
+      {ATALHOS.map((a) => {
+        const mostrarMais =
+          a.label !== "Casa" && a.label !== "Relatório" && a.label !== "Ajustes";
+        return (
+          <button key={a.label} className="atalho" onClick={() => abrir(a)}>
+            <span className="atalho-icone">
+              <Icon name={a.icon} size={24} color="var(--grey)" />
+              {mostrarMais && (
+                <span className="atalho-mais" aria-hidden>
+                  <Icon name="plus" size={14} color="var(--grey)" />
+                </span>
+              )}
+            </span>
+            <span className="atalho-label">{a.label}</span>
+          </button>
+        );
+      })}
     </div>
   );
 }

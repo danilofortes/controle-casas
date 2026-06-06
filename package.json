@@ -1,0 +1,12 @@
+{
+  "name": "controle-casas",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c blue,green \"node scripts/dev-api.mjs\" \"npm run dev --prefix frontend\"",
+    "dev:api": "node scripts/dev-api.mjs",
+    "dev:web": "npm run dev --prefix frontend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

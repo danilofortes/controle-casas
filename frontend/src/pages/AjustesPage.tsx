@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../auth/AuthContext";
 import { Alert } from "../components/Alert";
 import { Icon, type IconName } from "../components/Icon";
+import { PageHeader } from "../components/PageHeader";
 import { InstalarApp } from "../components/InstalarApp";
 import { Modal } from "../components/Modal";
 import { api, ApiError, type Configuracao } from "../lib/api";
@@ -68,21 +69,18 @@ export function AjustesPage() {
   }
 
   return (
-    <>
+    <div className="apex-page">
       {toast && <div className="toast">{toast}</div>}
 
-      <header className="screen-header">
-        <h1>Ajustes</h1>
-        <p className="subtitle">Preferências e conta</p>
-      </header>
+      <PageHeader title="Ajustes" subtitle="Preferências e conta" showNovo={false} />
 
-      <div className="screen-body">
-        <div className="card">
-          <div className="li-title">Casa em Dia</div>
-          <div className="li-sub">Controle de aluguéis e contas · versão 0.1</div>
-        </div>
+      <div className="apex-panel" style={{ marginBottom: 16 }}>
+        <div className="li-title">Casa em Dia</div>
+        <div className="li-sub">Controle de aluguéis e contas · versão 0.1</div>
+      </div>
 
-        <h2 className="section-title">Configurações</h2>
+      <div className="apex-panel">
+        <h2 className="section-title" style={{ marginTop: 0 }}>Configurações</h2>
         {CONFIGS.map((c) => (
           <button
             className="list-item list-item-btn"
@@ -116,7 +114,7 @@ export function AjustesPage() {
         </button>
 
         <h2 className="section-title">Conta</h2>
-        <button className="btn btn-accent" onClick={sair}>
+        <button className="btn apex-btn-primary" onClick={sair} style={{ width: "auto", padding: "12px 24px" }}>
           <Icon name="logout" size={20} />
           Sair
         </button>
@@ -153,7 +151,7 @@ export function AjustesPage() {
           <InstalarApp />
         </Modal>
       )}
-    </>
+    </div>
   );
 }
 

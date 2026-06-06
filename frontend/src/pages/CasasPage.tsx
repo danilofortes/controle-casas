@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { api, ApiError, type Casa, type Terreno } from "../lib/api";
 import { useApi } from "../lib/useApi";
 import { Icon } from "../components/Icon";
+import { PageHeader } from "../components/PageHeader";
 import { ConfirmarExclusao } from "../components/ConfirmarExclusao";
 import { formatarCentavos } from "../lib/format";
 
@@ -66,13 +67,14 @@ export function CasasPage() {
   }
 
   return (
-    <>
-      <header className="screen-header">
-        <h1>Casas</h1>
-        <p className="subtitle">Terrenos, casas e moradores</p>
-      </header>
+    <div className="apex-page">
+      <PageHeader
+        title="Casas"
+        subtitle="Terrenos, casas e moradores do rateio"
+        showNovo
+      />
 
-      <div className="screen-body">
+      <div>
         {carregando && <p className="loading">Carregando…</p>}
         {erro && <p className="error-text">{erro}</p>}
 
@@ -174,6 +176,6 @@ export function CasasPage() {
           onCancelar={() => setConfirmando(null)}
         />
       )}
-    </>
+    </div>
   );
 }

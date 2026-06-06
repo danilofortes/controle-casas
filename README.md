@@ -84,6 +84,7 @@ O app fala só com a API (`VITE_API_URL`). Nada de credencial de banco ou segred
 - Pendências e aviso do que vence em até 3 dias.
 - Login com senha compartilhada (**JWT HS256**).
 - PWA instalável no celular.
+- Documentos por casa: PDFs, fotos e anotações (Storage + Postgres).
 
 ---
 
@@ -309,7 +310,9 @@ pytest
 - **Start:** `alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT`
 - **Health check:** `/api/health`
 - **Auto-deploy:** push na `main`
-- Segredos no painel do Render. Nada versionado no Git.
+- Segredos no painel do Render: `DATABASE_URL`, `APP_SENHA`, `APP_SESSION_SECRET`, `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`.
+- Migração `0007_documentos` cria tabelas de PDFs, fotos e anotações. Arquivos vão para bucket `documentos` no Supabase Storage (crie no painel ou `python -m scripts.setup_supabase_storage`).
+- Nada versionado no Git.
 
 ### Frontend (Vercel, manual)
 
