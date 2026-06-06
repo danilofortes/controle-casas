@@ -45,3 +45,18 @@ class Casa(Base, TimestampMixin):
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
+    pdfs: Mapped[list["DocumentoPdf"]] = relationship(  # noqa: F821
+        back_populates="casa",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+    fotos: Mapped[list["FotoCasa"]] = relationship(  # noqa: F821
+        back_populates="casa",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+    anotacoes: Mapped[list["AnotacaoDocumento"]] = relationship(  # noqa: F821
+        back_populates="casa",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )

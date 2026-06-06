@@ -13,8 +13,8 @@ const PRINCIPAIS: NavItem[] = [
 ];
 
 const SECUNDARIOS: NavItem[] = [
+  { to: "/documentos", label: "Documentos", icon: "file" },
   { to: "/relatorio", label: "Relatório", icon: "chart" },
-  { to: "/ajustes", label: "Ajustes", icon: "settings" },
 ];
 
 export function BottomNav() {

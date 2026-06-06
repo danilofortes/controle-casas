@@ -36,6 +36,16 @@ class Settings(BaseSettings):
     )
     app_cors_origins: str = Field(default="*", alias="APP_CORS_ORIGINS")
     app_env: str = Field(default="production", alias="APP_ENV")
+    supabase_url: str | None = Field(default=None, alias="SUPABASE_URL")
+    supabase_service_key: str | None = Field(
+        default=None, alias="SUPABASE_SERVICE_KEY"
+    )
+    supabase_storage_bucket: str = Field(
+        default="documentos", alias="SUPABASE_STORAGE_BUCKET"
+    )
+    storage_max_upload_bytes: int = Field(
+        default=25_165_824, alias="STORAGE_MAX_UPLOAD_BYTES"
+    )
 
     @property
     def cors_origins_list(self) -> list[str]:

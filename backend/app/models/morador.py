@@ -21,6 +21,8 @@ class Morador(Base, TimestampMixin):
     # cabeça (consumo), mas nunca recebem a cobrança em seu nome.
     adulto: Mapped[bool] = mapped_column(default=True)
     idade: Mapped[int | None]
+    parentesco: Mapped[str | None]
+    sexo: Mapped[str | None]
     data_entrada: Mapped[date]
     data_saida: Mapped[date | None]
 

@@ -1,19 +1,22 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800&family=Poppins:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
 @import "./theme.css";
+@import "./app-layout.css";
+@import "./ui-system.css";
 
-/* Textos em destaque/negrito usam Inter Bold; o restante usa Poppins. */
 h1,
 h2,
 h3,
 .screen-header h1,
 .section-title,
 .stat .value,
+.dash-stat-value,
 .list-item .li-title,
 .list-item .li-amount,
 .month-nav .month-label,
 .btn,
 .tag {
-  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto,
+    sans-serif;
 }
 
 * {
@@ -65,19 +68,18 @@ a {
   flex-direction: column;
 }
 
-/* Cabeçalho colorido */
+/* Cabeçalho de página (estilo dashboard) */
 .screen-header {
-  background: var(--primary);
-  color: var(--white);
-  padding: 56px 24px 90px;
-  border-bottom-left-radius: var(--radius-lg);
-  border-bottom-right-radius: var(--radius-lg);
+  background: transparent;
+  color: var(--ink);
+  padding: 24px 20px 8px;
+  border-radius: 0;
 }
 
 .screen-header h1 {
   margin: 0;
   font-size: 24px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .back-btn {
@@ -86,33 +88,32 @@ a {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.18);
-  color: var(--white);
+  background: var(--accent-tint);
+  color: var(--primary);
   margin-bottom: 14px;
 }
 
 .back-btn:active {
-  background: rgba(255, 255, 255, 0.28);
+  background: rgba(207, 92, 54, 0.22);
 }
 
 .screen-header .subtitle {
   margin-top: 4px;
-  opacity: 0.9;
+  color: var(--muted);
   font-size: 14px;
 }
 
-/* Conteúdo que "sobe" sobre o header */
 .screen-body {
   flex: 1;
   padding: 0 20px calc(var(--nav-h) + 32px);
-  margin-top: -64px;
+  margin-top: 0;
 }
 
-/* Cartão branco genérico */
 .card {
   background: var(--card);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-card);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-soft);
   padding: 18px;
 }
 
@@ -163,6 +164,7 @@ a {
   gap: 14px;
   background: var(--card);
   border-radius: var(--radius-md);
+  border: 1px solid var(--line);
   box-shadow: var(--shadow-soft);
   padding: 14px;
   margin-bottom: 12px;
@@ -201,7 +203,8 @@ a {
 .terreno-group {
   background: var(--card);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-card);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-soft);
   margin-bottom: 14px;
   overflow: hidden;
 }
@@ -305,6 +308,22 @@ a {
   font-weight: 700;
   font-size: 14px;
   color: var(--ink);
+}
+
+.casa-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tag-resident {
+  font-weight: 600;
+  font-size: 11px;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .casa-row .li-sub {
@@ -420,25 +439,55 @@ a {
 
 /* Tela de login com logotipo */
 .login-screen {
-  padding-top: 40px;
+  width: 100%;
+  max-width: none;
+  min-height: 100dvh;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 20px;
+  padding-top: max(32px, env(safe-area-inset-top));
+  background: var(--bg);
 }
 
 .login-brand {
   text-align: center;
-  margin-bottom: 26px;
+  margin-bottom: 28px;
 }
 
 .login-brand img {
   width: 156px;
   height: 156px;
+  display: block;
   filter: drop-shadow(0 10px 24px rgba(255, 87, 34, 0.28));
 }
 
-.login-brand p {
-  color: var(--muted);
-  font-size: 14px;
-  margin-top: 12px;
+.login-form {
+  width: 100%;
+  max-width: 360px;
 }
+
+.login-senha-wrap {
+  position: relative;
+}
+
+.login-senha-wrap input {
+  width: 100%;
+  padding-right: 44px;
+}
+
+.login-senha-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  display: grid;
+  place-items: center;
+}
+
 
 /* Abas (detalhe da casa) */
 .tabs {
@@ -856,15 +905,13 @@ a {
 .bottom-nav {
   position: fixed;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
   width: 100%;
-  max-width: var(--maxw);
   height: var(--nav-h);
   background: var(--white);
-  box-shadow: 0 -6px 24px rgba(48, 56, 65, 0.08);
-  border-top-left-radius: 22px;
-  border-top-right-radius: 22px;
+  border-top: 1px solid var(--line);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
   display: flex;
   align-items: center;
   justify-content: space-around;
@@ -876,11 +923,13 @@ a {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 2px;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   flex: 1;
+  min-width: 0;
+  padding: 0 2px;
 }
 
 .nav-btn.active {
@@ -1226,122 +1275,9 @@ a {
   color: var(--muted);
 }
 
-/* ============================================================
-   Navegação superior (desktop / navegador)
-   ============================================================ */
-.desktop-header {
-  display: none;
-}
-
-@media (min-width: 768px) {
-  /* Barra de topo fixa */
-  .desktop-header {
-    display: block;
-    position: sticky;
-    top: 0;
-    z-index: 40;
-    background: var(--white);
-    box-shadow: 0 2px 12px rgba(48, 56, 65, 0.06);
-  }
-
-  .desktop-header-inner {
-    max-width: 760px;
-    margin: 0 auto;
-    height: 64px;
-    padding: 0 20px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .dh-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-family: "Inter", system-ui, sans-serif;
-    font-weight: 800;
-    font-size: 18px;
-    color: var(--ink);
-  }
-
-  .dh-brand img {
-    border-radius: 8px;
-  }
-
-  .dh-nav {
-    display: flex;
-    gap: 4px;
-    flex: 1;
-    margin-left: 18px;
-  }
-
-  .dh-link {
-    padding: 8px 14px;
-    border-radius: 999px;
-    color: var(--ink-soft);
-    font-family: "Inter", system-ui, sans-serif;
-    font-weight: 600;
-    font-size: 15px;
-    transition: background 0.15s ease, color 0.15s ease;
-  }
-
-  .dh-link:hover {
-    background: var(--bg);
-    color: var(--ink);
-  }
-
-  .dh-link.active {
-    color: var(--primary);
-    background: var(--secondary-tint);
-  }
-
-  .dh-novo {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--accent);
-    color: var(--white);
-    padding: 9px 18px;
-    border-radius: 999px;
-    font-family: "Inter", system-ui, sans-serif;
-    font-weight: 700;
-    font-size: 14px;
-    box-shadow: 0 6px 16px rgba(255, 87, 34, 0.28);
-    transition: filter 0.15s ease;
-  }
-
-  .dh-novo:hover {
-    filter: brightness(1.06);
-  }
-
-  /* Coluna de conteúdo mais larga e sem barra inferior */
-  .app-shell {
-    max-width: 760px;
-    min-height: calc(100vh - 64px);
-  }
-
-  .app-shell .bottom-nav {
+@media (min-width: 900px) {
+  .header-menu-btn {
     display: none;
-  }
-
-  /* Remove o espaço que era reservado para a barra inferior */
-  .app-shell .screen-body {
-    padding-bottom: 40px;
-  }
-
-  /* Cabeçalho colorido das páginas fica mais enxuto sob a barra de topo */
-  .app-shell .screen-header {
-    padding-top: 32px;
-  }
-}
-
-@media (min-width: 768px) {
-  /* Login centralizado num cartão mais contido no desktop */
-  .login-screen .card,
-  .login-brand {
-    max-width: 420px;
-    margin-left: auto;
-    margin-right: auto;
   }
 }
 
@@ -1368,9 +1304,7 @@ a {
   align-items: flex-start;
   gap: 16px;
   overflow-x: auto;
-  /* padding-top (não margin) empurra a faixa para abaixo do header laranja,
-     evitando o margin-collapse com o .screen-body (que tem margtop negativo). */
-  padding: 80px 2px 10px;
+  padding: 4px 2px 10px;
   margin-bottom: 16px;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
@@ -1393,6 +1327,7 @@ a {
 }
 
 .atalho-icone {
+  position: relative;
   width: 56px;
   height: 56px;
   border-radius: 16px;

@@ -24,6 +24,29 @@ async def contar_moradores_atuais(
     return int((await session.scalar(stmt)) or 0)
 
 
+async def mapa_primeiro_adulto_nome(
+    session: AsyncSession, casa_ids: list[uuid.UUID], referencia: date | None = None
+) -> dict[uuid.UUID, str]:
+    """Primeiro adulto atual por casa (responsável primeiro, depois nome)."""
+    if not casa_ids:
+        return {}
+    ref = referencia or date.today()
+    stmt = (
+        select(Morador.casa_id, Morador.nome)
+        .where(
+            Morador.casa_id.in_(casa_ids),
+            Morador.adulto.is_(True),
+            _filtro_atuais(ref),
+        )
+        .order_by(Morador.responsavel.desc(), Morador.nome)
+    )
+    resultado: dict[uuid.UUID, str] = {}
+    for casa_id, nome in (await session.execute(stmt)).all():
+        if casa_id not in resultado:
+            resultado[casa_id] = nome
+    return resultado
+
+
 async def mapa_moradores_atuais(
     session: AsyncSession, casa_ids: list[uuid.UUID], referencia: date | None = None
 ) -> dict[uuid.UUID, int]:
