@@ -1,3 +1,5 @@
+import { handleMockRequest, USE_MOCK } from "./mock";
+
 const BASE_URL =
   import.meta.env.VITE_API_URL ?? "https://controle-casas-api.onrender.com";
 
@@ -27,6 +29,14 @@ export class ApiError extends Error {
 export const onUnauthorized = new EventTarget();
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+  if (USE_MOCK) {
+    const method = options.method ?? "GET";
+    const body = options.body
+      ? (JSON.parse(options.body as string) as unknown)
+      : undefined;
+    return handleMockRequest<T>(method, path, body);
+  }
+
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...(options.headers as Record<string, string>),
@@ -96,6 +106,9 @@ export interface Casa {
   dia_vencimento: number;
   ativo: boolean;
   observacoes: string | null;
+  morador_adulto_nome?: string | null;
+  moradores_atuais?: number;
+  aluguel_formatado?: string;
   created_at: string;
   updated_at: string;
 }
@@ -108,6 +121,8 @@ export interface Morador {
   responsavel: boolean;
   adulto: boolean;
   idade: number | null;
+  parentesco: string | null;
+  sexo: string | null;
   data_entrada: string;
   data_saida: string | null;
 }
@@ -260,4 +275,38 @@ export interface Despesa {
   valor_centavos: number;
   data: string;
   valor_formatado: string;
+}
+
+export interface DocumentoPdf {
+  id: string;
+  casa_id: string;
+  nome: string;
+  tamanho_bytes: number;
+  url: string;
+  created_at: string;
+}
+
+export interface FotoCasa {
+  id: string;
+  casa_id: string;
+  legenda: string | null;
+  url: string;
+  created_at: string;
+}
+
+export interface AnotacaoDocumento {
+  id: string;
+  casa_id: string;
+  titulo: string;
+  texto: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CasaDocumentos {
+  casa_id: string;
+  casa_nome: string;
+  pdfs: DocumentoPdf[];
+  fotos: FotoCasa[];
+  anotacoes: AnotacaoDocumento[];
 }

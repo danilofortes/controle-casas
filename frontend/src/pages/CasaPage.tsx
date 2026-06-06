@@ -20,11 +20,19 @@ import {
   formatarDataCompleta,
   formatarDiaMes,
   hoje,
+  paraCentavos,
 } from "../lib/format";
+import {
+  PARENTESCO_OPCOES,
+  SEXO_OPCOES,
+  rotuloParentesco,
+  rotuloSexo,
+} from "../lib/morador";
 import { Alert } from "../components/Alert";
 import { Modal } from "../components/Modal";
 import { ConfirmarExclusao } from "../components/ConfirmarExclusao";
 import { Icon } from "../components/Icon";
+import { PageHeader } from "../components/PageHeader";
 import { CobrancasCasa, ROTULO } from "../components/CobrancasCasa";
 
 type Aba = "cobrancas" | "moradores";
@@ -35,6 +43,7 @@ export function CasaPage() {
   const [aba, setAba] = useState<Aba>("cobrancas");
   const [excluindo, setExcluindo] = useState(false);
   const [confirmandoCasa, setConfirmandoCasa] = useState(false);
+  const [editandoCasa, setEditandoCasa] = useState(false);
 
   const casa = useApi<Casa>(() => api.get<Casa>(`/casas/${id}`), [id]);
   const moradores = useApi<Morador[]>(
@@ -79,20 +88,37 @@ export function CasaPage() {
   );
 
   return (
-    <>
-      <header className="screen-header">
-        <button
-          className="back-btn"
-          aria-label="Voltar"
-          onClick={() => navigate("/casas")}
-        >
-          <Icon name="chevronLeft" size={22} />
-        </button>
-        <h1>{casa.data?.nome ?? "Casa"}</h1>
-        <p className="subtitle">Cobranças e moradores</p>
-      </header>
+    <div className="ui-page">
+      <PageHeader
+        title={casa.data?.nome ?? "Casa"}
+        subtitle="Cobranças e moradores"
+        showNovo={false}
+        actions={
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              type="button"
+              className="ui-btn-ghost"
+              aria-label="Editar casa"
+              onClick={() => setEditandoCasa(true)}
+              disabled={!casa.data}
+            >
+              <Icon name="edit" size={16} />
+              Editar
+            </button>
+            <button
+              type="button"
+              className="ui-btn-ghost"
+              aria-label="Voltar"
+              onClick={() => navigate("/casas")}
+            >
+              <Icon name="chevronLeft" size={16} />
+              Voltar
+            </button>
+          </div>
+        }
+      />
 
-      <div className="screen-body">
+      <div className="ui-panel">
         <div className="tabs">
           <button
             className={aba === "cobrancas" ? "active" : ""}
@@ -124,6 +150,19 @@ export function CasaPage() {
         </button>
       </div>
 
+      {editandoCasa && casa.data && (
+        <Modal title="Editar casa" onClose={() => setEditandoCasa(false)}>
+          <EdicaoCasa
+            casa={casa.data}
+            onCancel={() => setEditandoCasa(false)}
+            onSaved={() => {
+              setEditandoCasa(false);
+              casa.reload();
+            }}
+          />
+        </Modal>
+      )}
+
       {confirmandoCasa && (
         <ConfirmarExclusao
           titulo="Excluir casa"
@@ -146,7 +185,122 @@ export function CasaPage() {
           onCancelar={() => setConfirmandoCasa(false)}
         />
       )}
-    </>
+    </div>
+  );
+}
+
+function EdicaoCasa({
+  casa,
+  onCancel,
+  onSaved,
+}: {
+  casa: Casa;
+  onCancel: () => void;
+  onSaved: () => void;
+}) {
+  const terrenos = useApi<Terreno[]>(() => api.get<Terreno[]>("/terrenos"), []);
+  const [terrenoId, setTerrenoId] = useState(casa.terreno_id);
+  const [nome, setNome] = useState(casa.nome);
+  const [aluguel, setAluguel] = useState(formatarCentavos(casa.aluguel_centavos));
+  const [dia, setDia] = useState(String(casa.dia_vencimento));
+  const [ativo, setAtivo] = useState(casa.ativo);
+  const [obs, setObs] = useState(casa.observacoes ?? "");
+  const [salvando, setSalvando] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+
+  async function salvar() {
+    if (!nome.trim()) return;
+    setSalvando(true);
+    setErro(null);
+    try {
+      await api.put(`/casas/${casa.id}`, {
+        terreno_id: terrenoId,
+        nome: nome.trim(),
+        aluguel_centavos: paraCentavos(aluguel),
+        dia_vencimento: Number(dia) || 10,
+        ativo,
+        observacoes: obs.trim() || null,
+      });
+      onSaved();
+    } catch (e) {
+      setErro(e instanceof ApiError ? e.message : "Não foi possível salvar.");
+    } finally {
+      setSalvando(false);
+    }
+  }
+
+  return (
+    <div className="card" style={{ marginBottom: 0 }}>
+      <div className="field">
+        <label>Terreno</label>
+        <select
+          value={terrenoId}
+          onChange={(e) => setTerrenoId(e.target.value)}
+          disabled={terrenos.loading}
+        >
+          {terrenos.data?.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.nome}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="field">
+        <label>Nome da casa</label>
+        <input value={nome} onChange={(e) => setNome(e.target.value)} />
+      </div>
+      <div className="field">
+        <label>Aluguel mensal</label>
+        <input
+          value={aluguel}
+          onChange={(e) => setAluguel(e.target.value)}
+          inputMode="decimal"
+          placeholder="R$ 0,00"
+        />
+      </div>
+      <div className="field">
+        <label>Dia de vencimento</label>
+        <input
+          type="number"
+          min={1}
+          max={31}
+          value={dia}
+          onChange={(e) => setDia(e.target.value)}
+        />
+      </div>
+      <div className="field">
+        <label>Observações (opcional)</label>
+        <textarea value={obs} onChange={(e) => setObs(e.target.value)} />
+      </div>
+      <div className="check-row">
+        <input
+          id="edit-casa-ativo"
+          type="checkbox"
+          checked={ativo}
+          onChange={(e) => setAtivo(e.target.checked)}
+        />
+        <label htmlFor="edit-casa-ativo">Casa ativa (alugada)</label>
+      </div>
+      {erro && <p className="error-text">{erro}</p>}
+      <div style={{ display: "flex", gap: 8 }}>
+        <button
+          className="btn btn-ghost"
+          style={{ flex: 1 }}
+          onClick={onCancel}
+          disabled={salvando}
+        >
+          Cancelar
+        </button>
+        <button
+          className="btn"
+          style={{ flex: 1 }}
+          onClick={salvar}
+          disabled={salvando}
+        >
+          {salvando ? "Salvando…" : "Salvar casa"}
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -356,6 +510,8 @@ function Moradores({
   const [novoNome, setNovoNome] = useState("");
   const [novoAdulto, setNovoAdulto] = useState(true);
   const [novaIdade, setNovaIdade] = useState("");
+  const [novoParentesco, setNovoParentesco] = useState("");
+  const [novoSexo, setNovoSexo] = useState("");
   const [novaEntrada, setNovaEntrada] = useState(hoje());
 
   async function adicionar() {
@@ -368,10 +524,14 @@ function Moradores({
         data_entrada: novaEntrada,
       };
       if (novaIdade.trim()) body.idade = Number(novaIdade);
+      if (novoParentesco) body.parentesco = novoParentesco;
+      if (novoSexo) body.sexo = novoSexo;
       await api.post(`/casas/${casaId}/moradores`, body);
       setNovoNome("");
       setNovoAdulto(true);
       setNovaIdade("");
+      setNovoParentesco("");
+      setNovoSexo("");
       setNovaEntrada(hoje());
       setAdicionando(false);
       lista.reload();
@@ -451,6 +611,31 @@ function Moradores({
               value={novaEntrada}
               onChange={(e) => setNovaEntrada(e.target.value)}
             />
+          </div>
+          <div className="field">
+            <label>Parentesco (opcional)</label>
+            <select
+              value={novoParentesco}
+              onChange={(e) => setNovoParentesco(e.target.value)}
+            >
+              <option value="">Selecione</option>
+              {PARENTESCO_OPCOES.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="field">
+            <label>Sexo (opcional)</label>
+            <select value={novoSexo} onChange={(e) => setNovoSexo(e.target.value)}>
+              <option value="">Selecione</option>
+              {SEXO_OPCOES.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="check-row">
             <input
@@ -533,6 +718,16 @@ function VisualizarMorador({
           vazio={morador.idade == null}
         />
         <InfoLinha
+          rotulo="Parentesco"
+          valor={rotuloParentesco(morador.parentesco)}
+          vazio={!morador.parentesco}
+        />
+        <InfoLinha
+          rotulo="Sexo"
+          valor={rotuloSexo(morador.sexo)}
+          vazio={!morador.sexo}
+        />
+        <InfoLinha
           rotulo="Telefone"
           valor={morador.telefone?.trim() ? morador.telefone : "Não informado"}
           vazio={!morador.telefone?.trim()}
@@ -571,6 +766,8 @@ function EdicaoMorador({
   const [idade, setIdade] = useState(
     morador.idade != null ? String(morador.idade) : "",
   );
+  const [parentesco, setParentesco] = useState(morador.parentesco ?? "");
+  const [sexo, setSexo] = useState(morador.sexo ?? "");
   const [entrada, setEntrada] = useState(morador.data_entrada);
   const [saida, setSaida] = useState(morador.data_saida ?? "");
   const [salvando, setSalvando] = useState(false);
@@ -599,6 +796,8 @@ function EdicaoMorador({
         telefone: telefone.trim() || null,
         adulto,
         idade: idade.trim() ? Number(idade) : null,
+        parentesco: parentesco || null,
+        sexo: sexo || null,
         data_entrada: entrada,
         data_saida: saida || null,
       });
@@ -615,6 +814,31 @@ function EdicaoMorador({
       <div className="field">
         <label>Nome</label>
         <input value={nome} onChange={(e) => setNome(e.target.value)} />
+      </div>
+      <div className="field">
+        <label>Parentesco (opcional)</label>
+        <select
+          value={parentesco}
+          onChange={(e) => setParentesco(e.target.value)}
+        >
+          <option value="">Selecione</option>
+          {PARENTESCO_OPCOES.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="field">
+        <label>Sexo (opcional)</label>
+        <select value={sexo} onChange={(e) => setSexo(e.target.value)}>
+          <option value="">Selecione</option>
+          {SEXO_OPCOES.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
       </div>
       <div className="field">
         <label>Telefone (opcional)</label>

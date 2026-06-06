@@ -10,6 +10,9 @@ import {
 } from "../lib/api";
 import { useApi } from "../lib/useApi";
 import { Icon, type IconName } from "../components/Icon";
+import { PageHeader } from "../components/PageHeader";
+import { GraficoDonut } from "../components/GraficoDonut";
+import { GraficoVisaoMensal } from "../components/GraficoVisaoMensal";
 import { Alert } from "../components/Alert";
 import { ConfirmarExclusao } from "../components/ConfirmarExclusao";
 import { CobrancasCasa } from "../components/CobrancasCasa";
@@ -110,59 +113,84 @@ export function RelatorioPage() {
     ];
   })();
 
+  const monthNav = (
+    <div className="ui-month-nav">
+      <button
+        type="button"
+        aria-label="Mês anterior"
+        onClick={() => setCompetencia((c) => deslocarCompetencia(c, -1))}
+      >
+        <Icon name="chevronLeft" size={18} />
+      </button>
+      <span>{formatarCompetencia(competencia)}</span>
+      <button
+        type="button"
+        aria-label="Próximo mês"
+        onClick={() => setCompetencia((c) => deslocarCompetencia(c, 1))}
+      >
+        <Icon name="chevronRight" size={18} />
+      </button>
+    </div>
+  );
+
   return (
-    <>
-      <header className="screen-header">
-        <h1>Relatório</h1>
-        <p className="subtitle">Resumo do mês por casa</p>
-      </header>
+    <div className="ui-page">
+      <PageHeader
+        title="Relatório"
+        subtitle="Resumo do mês por casa e terreno"
+        actions={monthNav}
+      />
 
-      <div className="screen-body">
-        <div className="month-nav" style={{ marginTop: 0 }}>
-          <button
-            aria-label="Mês anterior"
-            onClick={() => setCompetencia((c) => deslocarCompetencia(c, -1))}
-          >
-            <Icon name="chevronLeft" size={20} />
-          </button>
-          <span className="month-label">{formatarCompetencia(competencia)}</span>
-          <button
-            aria-label="Próximo mês"
-            onClick={() => setCompetencia((c) => deslocarCompetencia(c, 1))}
-          >
-            <Icon name="chevronRight" size={20} />
-          </button>
-        </div>
-
-        <div className="stat-row" style={{ marginTop: 16 }}>
-          <div className="stat">
-            <span className="label">
-              <Icon name="check" size={15} color="var(--secondary)" /> Recebido
+      <div className="ui-stats">
+        <div className="ui-stat-card balance">
+          <div className="ui-stat-top">
+            <span className="ui-stat-label">A receber (total)</span>
+            <span className="ui-stat-icon" aria-hidden>
+              <Icon name="chart" size={18} />
             </span>
-            <div className="value">
-              {formatarCentavos(t?.total_recebido_centavos ?? 0)}
-            </div>
           </div>
-          <div className="stat">
-            <span className="label">
-              <Icon name="clock" size={15} color="var(--accent)" /> Em aberto
-            </span>
-            <div className="value is-accent">
-              {formatarCentavos(t?.total_em_aberto_centavos ?? 0)}
-            </div>
+          <div className="ui-stat-value">
+            {formatarCentavos(t?.total_a_receber_centavos ?? 0)}
           </div>
         </div>
-
-        {t && (
-          <div className="card" style={{ marginTop: 14 }}>
-            <Linha rotulo="A receber (total)" valor={t.total_a_receber_centavos} />
-            <Linha rotulo="Despesas do mês" valor={t.total_despesas_centavos} />
+        <div className="ui-stat-card plain">
+          <div className="ui-stat-top">
+            <span className="ui-stat-label">Recebido</span>
+            <span className="ui-stat-icon green" aria-hidden>
+              <Icon name="check" size={18} />
+            </span>
           </div>
-        )}
+          <div className="ui-stat-value">
+            {formatarCentavos(t?.total_recebido_centavos ?? 0)}
+          </div>
+        </div>
+        <div className="ui-stat-card plain">
+          <div className="ui-stat-top">
+            <span className="ui-stat-label">Em aberto</span>
+            <span className="ui-stat-icon warn" aria-hidden>
+              <Icon name="clock" size={18} />
+            </span>
+          </div>
+          <div className="ui-stat-value">
+            {formatarCentavos(t?.total_em_aberto_centavos ?? 0)}
+          </div>
+        </div>
+      </div>
 
+      {data && (
+        <GraficoVisaoMensal
+          competencia={competencia}
+          recebido={t?.total_recebido_centavos ?? 0}
+          emAberto={t?.total_em_aberto_centavos ?? 0}
+        />
+      )}
+
+      <div className="ui-grid-mid">
         {data && (
-          <>
-            <h2 className="section-title">Resumo do mês</h2>
+          <div className="ui-panel">
+            <div className="ui-panel-head">
+              <h2 className="ui-panel-title">Resumo do mês</h2>
+            </div>
             <div className="quebra-grid">
               {quebra.map((q) => (
                 <div className="quebra-card" key={q.rotulo}>
@@ -181,19 +209,38 @@ export function RelatorioPage() {
                 </div>
               ))}
             </div>
-          </>
+            {t && (
+              <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid var(--ui-line)" }}>
+                <Linha rotulo="Despesas do mês" valor={t.total_despesas_centavos} />
+              </div>
+            )}
+          </div>
+        )}
+        {data && (
+          <div className="ui-panel">
+            <div className="ui-panel-head">
+              <h2 className="ui-panel-title">Composição</h2>
+            </div>
+            <GraficoDonut
+              fatias={quebra.slice(0, 3).map((q, i) => ({
+                rotulo: q.rotulo,
+                valor: q.valor,
+                cor: ["var(--ui-primary)", "var(--ui-secondary)", "var(--ui-muted)"][i],
+              }))}
+            />
+          </div>
         )}
 
         {data?.administradora && (
-          <>
+          <div className="ui-panel">
             <h2
-              className="section-title"
-              style={{ display: "flex", alignItems: "center", gap: 8 }}
+              className="ui-panel-title"
+              style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}
             >
               <Icon name="home" size={18} color="var(--secondary)" />
               Casa administradora
             </h2>
-            <div className="card">
+            <div>
               <div className="admin-total">
                 {formatarCentavos(data.administradora.total_centavos)}
               </div>
@@ -214,7 +261,7 @@ export function RelatorioPage() {
               Esta é a parte da casa administradora nas contas de água/luz (entra
               na divisão por cabeça, mas não é cobrada dos inquilinos).
             </Alert>
-          </>
+          </div>
         )}
 
         <h2 className="section-title">Por casa</h2>
@@ -226,7 +273,7 @@ export function RelatorioPage() {
         )}
 
         {data?.casas.map((c) => (
-          <div className="card" key={c.casa_id} style={{ marginBottom: 12 }}>
+          <div className="ui-panel" key={c.casa_id} style={{ marginBottom: 12 }}>
             <div
               style={{
                 display: "flex",
@@ -366,7 +413,7 @@ export function RelatorioPage() {
           onCancelar={() => setConfirmando(null)}
         />
       )}
-    </>
+    </div>
   );
 }
 

@@ -16,7 +16,10 @@ from app.models import (
 from app.models.base import TipoConta
 from app.schemas.casa import CasaCreate, CasaDetalheOut, CasaOut, CasaUpdate
 from app.schemas.relatorio import ItemCobranca
-from app.services.moradores import contar_moradores_atuais
+from app.services.moradores import (
+    contar_moradores_atuais,
+    mapa_primeiro_adulto_nome,
+)
 
 router = APIRouter(prefix="/casas", tags=["casas"])
 
@@ -42,7 +45,14 @@ async def listar(
     stmt = select(Casa).order_by(Casa.nome)
     if terreno_id is not None:
         stmt = stmt.where(Casa.terreno_id == terreno_id)
-    return list(await session.scalars(stmt))
+    casas = list(await session.scalars(stmt))
+    adultos = await mapa_primeiro_adulto_nome(session, [c.id for c in casas])
+    return [
+        CasaOut.model_validate(c).model_copy(
+            update={"morador_adulto_nome": adultos.get(c.id)}
+        )
+        for c in casas
+    ]
 
 
 @router.post("", response_model=CasaOut, status_code=status.HTTP_201_CREATED)

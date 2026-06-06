@@ -124,7 +124,29 @@ pytest
    ```bash
    alembic upgrade head
    ```
-4. Suba a API com Uvicorn e valide em `/docs`.
+4. Rode a migração `0007_documentos` (incluída em `alembic upgrade head`).
+5. Configure o **Supabase Storage** para PDFs e fotos (veja abaixo).
+6. Suba a API com Uvicorn e valide em `/docs`.
+
+## Supabase Storage (documentos)
+
+PDFs e fotos enviados pelo app são gravados no bucket `documentos` (público para leitura).
+Metadados e anotações ficam no Postgres.
+
+1. No painel Supabase → **Storage** → crie bucket `documentos`, marque como **public**.
+   Ou rode uma vez:
+   ```powershell
+   python -m scripts.setup_supabase_storage
+   ```
+2. Em **Project Settings → API**, copie:
+   - **Project URL** → `SUPABASE_URL`
+   - **service_role** (secret) → `SUPABASE_SERVICE_KEY` (só no backend/Render, nunca no frontend)
+3. Variáveis no Render (além de `DATABASE_URL`):
+   - `SUPABASE_URL`
+   - `SUPABASE_SERVICE_KEY`
+   - `SUPABASE_STORAGE_BUCKET=documentos` (opcional, já é o padrão)
+
+Sem essas variáveis, o backend aceita só links `http(s)` e data URLs pequenas (menos de 500 KB) em dev.
 
 ## Endpoints (prefixo `/api`)
 
@@ -149,3 +171,11 @@ pytest
 | PUT/DELETE | `/despesas/{id}` | Editar / excluir despesa |
 | GET | `/relatorio?competencia=YYYY-MM` | Resumo mensal por casa + totais |
 | GET | `/dashboard?competencia=YYYY-MM` | Visão geral (em aberto, atrasados) |
+| GET | `/casas/{id}/documentos` | PDFs, fotos e anotações da casa |
+| POST | `/casas/{id}/documentos/pdfs` | Adicionar PDF (JSON com `nome`, `url`, `tamanho_bytes`) |
+| POST | `/casas/{id}/documentos/fotos` | Adicionar foto (`legenda`, `url`) |
+| POST | `/casas/{id}/documentos/anotacoes` | Criar anotação (`titulo`, `texto`) |
+| PUT | `/documentos/anotacoes/{id}` | Editar anotação |
+| DELETE | `/documentos/pdfs/{id}` | Excluir PDF (+ arquivo no Storage) |
+| DELETE | `/documentos/fotos/{id}` | Excluir foto (+ arquivo no Storage) |
+| DELETE | `/documentos/anotacoes/{id}` | Excluir anotação |

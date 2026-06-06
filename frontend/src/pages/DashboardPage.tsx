@@ -10,9 +10,10 @@ import {
 } from "../lib/api";
 import { useApi } from "../lib/useApi";
 import { Icon, type IconName } from "../components/Icon";
-import { AnelProgresso } from "../components/AnelProgresso";
 import { AtalhosRapidos } from "../components/AtalhosRapidos";
-import { MenuApp } from "../components/MenuApp";
+import { PageHeader } from "../components/PageHeader";
+import { GraficoMensal } from "../components/GraficoMensal";
+import { GraficoDonut } from "../components/GraficoDonut";
 import {
   competenciaAtual,
   deslocarCompetencia,
@@ -53,7 +54,6 @@ export function DashboardPage() {
   );
 
   const [confirmando, setConfirmando] = useState<string | null>(null);
-  const [menuAberto, setMenuAberto] = useState(false);
 
   async function confirmar(p: ItemPendente) {
     const id = p.aluguel_id ?? p.rateio_id;
@@ -75,141 +75,199 @@ export function DashboardPage() {
   const pct =
     aReceberTotal > 0 ? Math.round((recebido / aReceberTotal) * 100) : 0;
 
+  const aluguel =
+    rel.data?.casas.reduce((s, c) => s + c.aluguel_centavos, 0) ?? 0;
+  const agua = rel.data?.casas.reduce((s, c) => s + c.agua_centavos, 0) ?? 0;
+  const luz = rel.data?.casas.reduce((s, c) => s + c.luz_centavos, 0) ?? 0;
+
+  const monthNav = (
+    <div className="ui-month-nav">
+      <button
+        type="button"
+        aria-label="Mês anterior"
+        onClick={() => setCompetencia((c) => deslocarCompetencia(c, -1))}
+      >
+        <Icon name="chevronLeft" size={18} />
+      </button>
+      <span>{formatarCompetencia(competencia)}</span>
+      <button
+        type="button"
+        aria-label="Próximo mês"
+        onClick={() => setCompetencia((c) => deslocarCompetencia(c, 1))}
+      >
+        <Icon name="chevronRight" size={18} />
+      </button>
+    </div>
+  );
+
   return (
-    <>
-      <header className="screen-header">
-        <div className="header-bar">
-          <div>
-            <h1>Olá</h1>
-            <p className="subtitle">{formatarCompetencia(competencia)}</p>
-          </div>
-          <button
-            className="back-btn header-menu-btn"
-            aria-label="Abrir menu"
-            onClick={() => setMenuAberto(true)}
-          >
-            <Icon name="menu" size={22} />
-          </button>
-        </div>
-      </header>
+    <div className="ui-page">
+      <PageHeader
+        title="Olá"
+        subtitle={`Acompanhe aluguéis e rateio de ${formatarCompetencia(competencia)}`}
+        actions={monthNav}
+        showMenuButton={false}
+      />
 
-      <div className="screen-body">
-        <AtalhosRapidos />
+      <AtalhosRapidos />
 
-        <div className="stat-row">
-          <div className="stat">
-            <span className="label">
-              <Icon name="check" size={15} color="var(--secondary)" /> Recebido
+      <div className="ui-stats">
+        <div className="ui-stat-card balance">
+          <div className="ui-stat-top">
+            <span className="ui-stat-label">Total do mês</span>
+            <span className="ui-stat-icon" aria-hidden>
+              <Icon name="key" size={18} />
             </span>
-            <div className="value">{formatarCentavos(recebido)}</div>
           </div>
-          <div className="stat">
-            <span className="label">
-              <Icon name="clock" size={15} color="var(--accent)" /> A receber
+          <div className="ui-stat-value">{formatarCentavos(aReceberTotal)}</div>
+          <span className="ui-trend up">{pct}% recebido</span>
+        </div>
+        <div className="ui-stat-card plain">
+          <div className="ui-stat-top">
+            <span className="ui-stat-label">Recebido</span>
+            <span className="ui-stat-icon green" aria-hidden>
+              <Icon name="check" size={18} />
             </span>
-            <div className="value is-accent">{formatarCentavos(aReceber)}</div>
           </div>
+          <div className="ui-stat-value">{formatarCentavos(recebido)}</div>
+          <span className="ui-trend up">confirmado</span>
         </div>
-
-        <div className="card progresso-card" style={{ marginTop: 14 }}>
-          <AnelProgresso valor={pct} tamanho={116} espessura={12} />
-          <div className="progresso-info">
-            <div className="progresso-rotulo">% recebido do mês</div>
-            <div className="progresso-valor">{formatarCentavos(recebido)}</div>
-            <div className="progresso-legenda">
-              <Icon name="key" size={15} />
-              de {formatarCentavos(aReceberTotal)} a receber
-            </div>
+        <div className="ui-stat-card plain">
+          <div className="ui-stat-top">
+            <span className="ui-stat-label">Em aberto</span>
+            <span className="ui-stat-icon warn" aria-hidden>
+              <Icon name="clock" size={18} />
+            </span>
           </div>
+          <div className="ui-stat-value">{formatarCentavos(aReceber)}</div>
+          <span className="ui-trend down">
+            {dash.data?.qtd_itens_atrasados ?? 0} atrasada(s)
+          </span>
         </div>
-
-        <div className="month-nav">
-          <button
-            aria-label="Mês anterior"
-            onClick={() => setCompetencia((c) => deslocarCompetencia(c, -1))}
-          >
-            <Icon name="chevronLeft" size={20} />
-          </button>
-          <span className="month-label">{formatarCompetencia(competencia)}</span>
-          <button
-            aria-label="Próximo mês"
-            onClick={() => setCompetencia((c) => deslocarCompetencia(c, 1))}
-          >
-            <Icon name="chevronRight" size={20} />
-          </button>
-        </div>
-
-        <h2 className="section-title">
-          Pendências
-          {dash.data && dash.data.qtd_itens_atrasados > 0 && (
-            <span className="tag" style={{ marginLeft: 8 }}>
-              {dash.data.qtd_itens_atrasados} atrasada(s)
-            </span>
-          )}
-          {dash.data && dash.data.qtd_itens_proximos > 0 && (
-            <span className="tag tag-warn" style={{ marginLeft: 8 }}>
-              {dash.data.qtd_itens_proximos} vencendo
-            </span>
-          )}
-        </h2>
-
-        {(dash.loading || rel.loading) && (
-          <p className="loading">Carregando…</p>
-        )}
-        {dash.error && <p className="error-text">{dash.error}</p>}
-
-        {dash.data && !dash.loading && dash.data.pendencias.length === 0 && (
-          <p className="empty">Tudo em dia neste mês!</p>
-        )}
-
-        {dash.data?.pendencias.map((p, i) => {
-          const id = p.aluguel_id ?? p.rateio_id ?? `${i}`;
-          return (
-            <div className="list-item" key={`${p.tipo}-${p.casa_id}-${i}`}>
-              <div
-                className={`badge-icon ${
-                  p.atrasado ? "is-accent" : p.vence_em_breve ? "is-warn" : ""
-                }`}
-              >
-                <Icon name={ICONE[p.tipo]} size={22} />
-              </div>
-              <div className="li-main">
-                <div className="li-title">
-                  {p.casa_nome ?? "Casa"} · {ROTULO[p.tipo]}
-                </div>
-                <div className="li-sub">
-                  Vence {formatarDiaMes(p.vencimento)}
-                  {p.atrasado && (
-                    <span className="tag" style={{ marginLeft: 6 }}>
-                      atrasado
-                    </span>
-                  )}
-                  {!p.atrasado && p.vence_em_breve && (
-                    <span className="tag tag-warn" style={{ marginLeft: 6 }}>
-                      {rotuloPrazo(p.dias_para_vencer)}
-                    </span>
-                  )}
-                </div>
-              </div>
-              <div className="li-right">
-                <div className={`li-amount ${p.atrasado ? "is-accent" : ""}`}>
-                  {formatarCentavos(p.valor_centavos)}
-                </div>
-                <button
-                  className="confirm-btn"
-                  aria-label="Confirmar recebimento"
-                  disabled={confirmando === id}
-                  onClick={() => confirmar(p)}
-                >
-                  <Icon name="check" size={20} />
-                </button>
-              </div>
-            </div>
-          );
-        })}
       </div>
 
-      {menuAberto && <MenuApp onClose={() => setMenuAberto(false)} />}
-    </>
+      <div className="ui-grid-mid">
+        <div className="ui-panel">
+          <div className="ui-panel-head">
+            <h2 className="ui-panel-title">Recebimentos do mês</h2>
+            <div className="ui-panel-actions">
+              <span className="ui-btn-ghost">Por casa</span>
+            </div>
+          </div>
+          <GraficoMensal
+            recebido={recebido}
+            emAberto={aReceber}
+            competenciaLabel={formatarCompetencia(competencia)}
+          />
+        </div>
+        <div className="ui-panel">
+          <div className="ui-panel-head">
+            <h2 className="ui-panel-title">Composição</h2>
+          </div>
+          <GraficoDonut
+            fatias={[
+              { rotulo: "Aluguel", valor: aluguel, cor: "var(--ui-primary)" },
+              { rotulo: "Água", valor: agua, cor: "var(--ui-secondary)" },
+              { rotulo: "Luz", valor: luz, cor: "var(--ui-muted)" },
+            ]}
+          />
+        </div>
+      </div>
+
+      <div className="ui-grid-bottom">
+        <div className="ui-panel">
+          <div className="ui-panel-head">
+            <h2 className="ui-panel-title">
+              Pendências
+              {dash.data && dash.data.qtd_itens_proximos > 0 && (
+                <span className="tag tag-warn" style={{ marginLeft: 8, fontSize: 11 }}>
+                  {dash.data.qtd_itens_proximos} vencendo
+                </span>
+              )}
+            </h2>
+          </div>
+
+          {(dash.loading || rel.loading) && (
+            <p className="loading">Carregando…</p>
+          )}
+          {dash.error && <p className="error-text">{dash.error}</p>}
+
+          {dash.data && !dash.loading && dash.data.pendencias.length === 0 && (
+            <p className="empty">Tudo em dia neste mês!</p>
+          )}
+
+          {dash.data?.pendencias.map((p, i) => {
+            const id = p.aluguel_id ?? p.rateio_id ?? `${i}`;
+            return (
+              <div className="list-item" key={`${p.tipo}-${p.casa_id}-${i}`}>
+                <div
+                  className={`badge-icon ${
+                    p.atrasado ? "is-accent" : p.vence_em_breve ? "is-warn" : ""
+                  }`}
+                >
+                  <Icon name={ICONE[p.tipo]} size={22} />
+                </div>
+                <div className="li-main">
+                  <div className="li-title">
+                    {p.casa_nome ?? "Casa"} · {ROTULO[p.tipo]}
+                  </div>
+                  <div className="li-sub">
+                    Vence {formatarDiaMes(p.vencimento)}
+                    {p.atrasado && (
+                      <span className="tag" style={{ marginLeft: 6 }}>
+                        atrasado
+                      </span>
+                    )}
+                    {!p.atrasado && p.vence_em_breve && (
+                      <span className="tag tag-warn" style={{ marginLeft: 6 }}>
+                        {rotuloPrazo(p.dias_para_vencer)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="li-right">
+                  <div className={`li-amount ${p.atrasado ? "is-accent" : ""}`}>
+                    {formatarCentavos(p.valor_centavos)}
+                  </div>
+                  <button
+                    className="confirm-btn"
+                    aria-label="Confirmar recebimento"
+                    disabled={confirmando === id}
+                    onClick={() => confirmar(p)}
+                  >
+                    <Icon name="check" size={20} />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="ui-panel">
+          <div className="ui-panel-head">
+            <h2 className="ui-panel-title">Por casa</h2>
+          </div>
+          {rel.data?.casas.map((c) => (
+            <div className="ui-casa-card" key={c.casa_id}>
+              <div>
+                <div className="ui-casa-nome">{c.casa_nome}</div>
+                <div className="ui-casa-sub">
+                  Pago {formatarCentavos(c.total_pago_centavos)}
+                </div>
+              </div>
+              <div
+                className={`ui-casa-valor${c.em_aberto_centavos > 0 ? " is-open" : ""}`}
+              >
+                {formatarCentavos(c.em_aberto_centavos)}
+              </div>
+            </div>
+          ))}
+          {rel.data && rel.data.casas.length === 0 && (
+            <p className="empty">Nenhuma casa com lançamentos.</p>
+          )}
+        </div>
+      </div>
+
+    </div>
   );
 }

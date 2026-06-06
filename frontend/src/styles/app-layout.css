@@ -1,0 +1,322 @@
+/* Shell estilo dashboard — sidebar + área principal */
+
+.app-layout {
+  min-height: 100dvh;
+  display: flex;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.app-sidebar {
+  display: none;
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  background: var(--card);
+  border-right: 1px solid var(--line);
+  padding: 24px 16px;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.app-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 8px 20px;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  border: none;
+  background: none;
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+}
+
+.app-brand-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--accent-tint);
+  color: var(--primary);
+  display: grid;
+  place-items: center;
+}
+
+.app-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.app-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 14px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+
+.app-nav-item:hover {
+  background: var(--accent-tint);
+  color: var(--primary);
+}
+
+.app-nav-item.is-active {
+  background: var(--accent-tint);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.app-nav-item.is-cta {
+  margin-top: 8px;
+  background: var(--primary);
+  color: var(--white);
+  font-weight: 600;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(207, 92, 54, 0.25);
+}
+
+.app-nav-item.is-cta:hover {
+  filter: brightness(0.95);
+  color: var(--white);
+}
+
+.app-sidebar-label {
+  margin: 18px 8px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.app-sidebar-card {
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.app-sidebar-card strong {
+  display: block;
+  color: var(--ink);
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.app-sidebar-footer {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.app-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.mock-banner {
+  background: var(--secondary-tint);
+  color: var(--ink);
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.app-main-inner {
+  flex: 1;
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+}
+
+/* Cabeçalho de página (substitui header laranja curvo) */
+.page-top {
+  padding: 24px 20px 8px;
+}
+
+.page-top-bar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.page-top h1 {
+  margin: 0 0 4px;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.page-top .subtitle {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.page-body {
+  padding: 0 20px calc(var(--nav-h) + 32px);
+}
+
+/* Cards de resumo estilo dashboard */
+.dash-stats {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.dash-stat {
+  border-radius: var(--radius-md);
+  padding: 20px 22px;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-soft);
+}
+
+.dash-stat.hero {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--black) 100%);
+  color: var(--white);
+  border: none;
+}
+
+.dash-stat.hero .dash-stat-label {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.dash-stat.plain {
+  background: var(--card);
+}
+
+.dash-stat-label {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.dash-stat-value {
+  margin-top: 10px;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.dash-stat-trend {
+  display: inline-flex;
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--secondary-tint);
+  color: var(--primary);
+}
+
+.dash-stat.hero .dash-stat-trend {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--apricot-cream);
+}
+
+.dash-panel {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+  padding: 20px 22px;
+  margin-bottom: 16px;
+}
+
+/* Login */
+.login-layout {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--bg);
+}
+
+.login-card-wrap {
+  width: 100%;
+  max-width: 420px;
+}
+
+.login-hero-title {
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.login-hero-text {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0 0 24px;
+}
+
+@media (min-width: 900px) {
+  .app-sidebar {
+    display: flex;
+  }
+
+  .app-layout .bottom-nav {
+    display: none;
+  }
+
+  .page-body {
+    padding-bottom: 40px;
+  }
+
+  .app-main-inner {
+    padding: 0 12px 32px;
+  }
+
+  .page-top {
+    padding: 28px 8px 12px;
+  }
+
+  .page-body {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
+
+@media (max-width: 899px) {
+  .dash-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .app-layout .desktop-header {
+    display: none;
+  }
+}
+
+@media (min-width: 900px) and (max-width: 1100px) {
+  .dash-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .dash-stat.hero {
+    grid-column: 1 / -1;
+  }
+}

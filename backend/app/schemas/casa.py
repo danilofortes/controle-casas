@@ -34,6 +34,7 @@ class CasaOut(BaseModel):
     dia_vencimento: int
     ativo: bool
     observacoes: str | None
+    morador_adulto_nome: str | None = None
     created_at: datetime
     updated_at: datetime
 

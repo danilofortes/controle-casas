@@ -8,6 +8,7 @@ import { CasaPage } from "./pages/CasaPage";
 import { NovoPage } from "./pages/NovoPage";
 import { RelatorioPage } from "./pages/RelatorioPage";
 import { AjustesPage } from "./pages/AjustesPage";
+import { DocumentosPage } from "./pages/DocumentosPage";
 import type { ReactNode } from "react";
 
 function Protegido({ children }: { children: ReactNode }) {
@@ -36,6 +37,7 @@ export default function App() {
         <Route path="/casas" element={<CasasPage />} />
         <Route path="/casas/:id" element={<CasaPage />} />
         <Route path="/novo" element={<NovoPage />} />
+        <Route path="/documentos" element={<DocumentosPage />} />
         <Route path="/relatorio" element={<RelatorioPage />} />
         <Route path="/ajustes" element={<AjustesPage />} />
       </Route>

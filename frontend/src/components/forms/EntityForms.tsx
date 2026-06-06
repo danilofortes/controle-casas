@@ -16,6 +16,7 @@ import {
   paraCentavos,
 } from "../../lib/format";
 import { Alert } from "../Alert";
+import { PARENTESCO_OPCOES, SEXO_OPCOES } from "../../lib/morador";
 
 export interface FormProps {
   onSaved: (msg: string) => void;
@@ -271,6 +272,8 @@ export function MoradorForm({ onSaved }: FormProps) {
   const [telefone, setTelefone] = useState("");
   const [adulto, setAdulto] = useState(true);
   const [idade, setIdade] = useState("");
+  const [parentesco, setParentesco] = useState("");
+  const [sexo, setSexo] = useState("");
   const [entrada, setEntrada] = useState(hoje());
   const [saida, setSaida] = useState("");
   const { salvando, erro, run } = useSubmit();
@@ -286,6 +289,8 @@ export function MoradorForm({ onSaved }: FormProps) {
         data_saida: saida || null,
       };
       if (idade.trim()) body.idade = Number(idade);
+      if (parentesco) body.parentesco = parentesco;
+      if (sexo) body.sexo = sexo;
       await api.post(`/casas/${casaId}/moradores`, body);
       onSaved("Morador registrado.");
     });
@@ -341,6 +346,29 @@ export function MoradorForm({ onSaved }: FormProps) {
             placeholder="Ex.: 34"
             inputMode="numeric"
           />
+        </Field>
+        <Field label="Parentesco (opcional)">
+          <select
+            value={parentesco}
+            onChange={(e) => setParentesco(e.target.value)}
+          >
+            <option value="">Selecione</option>
+            {PARENTESCO_OPCOES.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Sexo (opcional)">
+          <select value={sexo} onChange={(e) => setSexo(e.target.value)}>
+            <option value="">Selecione</option>
+            {SEXO_OPCOES.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
         </Field>
         <Field label="Data de entrada">
           <input
