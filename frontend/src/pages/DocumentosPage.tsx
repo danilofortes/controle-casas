@@ -69,6 +69,7 @@ export function DocumentosPage() {
   const [fileDataUrl, setFileDataUrl] = useState<string>("");
   const [extratos, setExtratos] = useState<ExtratoPagamento[]>([]);
   const [erroExtrato, setErroExtrato] = useState<string | null>(null);
+  const [modalFinanceBot, setModalFinanceBot] = useState(false);
 
   async function carregarExtratos() {
     if (!casaId) return;
@@ -542,80 +543,161 @@ export function DocumentosPage() {
         </Modal>
       )}
 
-      {aba === "extratos" && (
-        <section>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-            <h3 style={{ margin: 0, fontSize: "1rem" }}>Extratos de pagamento</h3>
-            <button
-              className="ui-btn-primary"
-              disabled={analisando}
-              onClick={() => inputExtrato.current?.click()}
-            >
-              {analisando ? "Analisando..." : "+ Enviar extrato"}
-            </button>
-            <input
-              ref={inputExtrato}
-              type="file"
-              accept="application/pdf,image/png,image/jpeg,image/webp"
-              hidden
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) void enviarExtrato(f);
-                e.target.value = "";
+          {dados && aba === "extratos" && (
+            <section className="ui-panel doc-section">
+              <div className="ui-panel-head">
+                <h2 className="ui-panel-title">Extratos de {dados.casa_nome}</h2>
+                <div className="ui-panel-actions">
+                  <button
+                    type="button"
+                    className="ui-btn-primary"
+                    disabled={analisando}
+                    onClick={() => setModalFinanceBot(true)}
+                  >
+                    <Icon name="robot" size={18} />
+                    {analisando ? "Analisando…" : "FinanceBot"}
+                    {!analisando && <Icon name="plus" size={14} />}
+                  </button>
+                  <input
+                    ref={inputExtrato}
+                    type="file"
+                    accept="application/pdf,image/png,image/jpeg,image/webp"
+                    hidden
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) void enviarExtrato(f);
+                      e.target.value = "";
+                    }}
+                  />
+                </div>
+              </div>
+
+              {erroExtrato && (
+                <p className="error-text" style={{ marginBottom: 12 }}>{erroExtrato}</p>
+              )}
+
+              {analisando ? (
+                <p className="loading">Analisando extrato com IA…</p>
+              ) : extratos.length === 0 ? (
+                <div className="doc-empty">
+                  <Icon name="receipt" size={36} />
+                  <p>Nenhum extrato registrado nesta casa.</p>
+                  <button
+                    type="button"
+                    className="ui-btn-ghost"
+                    onClick={() => setModalFinanceBot(true)}
+                  >
+                    Reconhecer com FinanceBot
+                  </button>
+                </div>
+              ) : (
+                <ul className="doc-list">
+                  {extratos.map((e) => (
+                    <li key={e.id} className="doc-list-item">
+                      <span className="doc-list-icon" aria-hidden="true">
+                        <Icon name="receipt" size={22} />
+                      </span>
+                      <div className="doc-list-body">
+                        <strong>{e.nome_pagador_extrato}</strong>
+                        <span>
+                          {e.competencia} - {(e.valor_centavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                          {e.data_pagamento && ` - ${new Date(e.data_pagamento + "T00:00:00").toLocaleDateString("pt-BR")}`}
+                        </span>
+                      </div>
+                      <div className="doc-list-actions">
+                        <span
+                          style={{
+                            padding: "2px 10px",
+                            borderRadius: 999,
+                            fontSize: 12,
+                            fontWeight: 600,
+                            whiteSpace: "nowrap",
+                            background: e.status === "confirmado" ? "#e6f4ea" : "var(--ui-primary-soft)",
+                            color: e.status === "confirmado" ? "#1b873f" : "var(--ui-primary)",
+                          }}
+                        >
+                          {e.status === "confirmado" ? "Confirmado" : "Pendente"}
+                        </span>
+                        {e.url && (
+                          <a
+                            href={e.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="doc-icon-btn"
+                            aria-label="Ver extrato"
+                          >
+                            <Icon name="eye" size={18} />
+                          </a>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          )}
+
+      {modalFinanceBot && (
+        <Modal title="FinanceBot" onClose={() => setModalFinanceBot(false)}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+            <span
+              aria-hidden="true"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 44,
+                height: 44,
+                borderRadius: "16px 16px 16px 4px",
+                background: "var(--ui-primary-soft)",
+                flexShrink: 0,
               }}
-            />
+            >
+              <Icon name="robot" size={26} color="var(--ui-primary)" />
+            </span>
+            <p style={{ margin: 0, color: "var(--ink-soft)", lineHeight: 1.5 }}>
+              Envie um comprovante de Pix ou recibo de pagamento recebido. A IA
+              guarda o extrato na casa e dá baixa automática na cobrança do mês.
+            </p>
           </div>
 
-          {erroExtrato && (
-            <p style={{ color: "var(--color-danger, #ef4444)", fontSize: "0.85rem", marginBottom: "0.75rem" }}>
-              {erroExtrato}
-            </p>
-          )}
+          <ol style={{ margin: "0 0 16px", paddingLeft: 20, color: "var(--ink)", lineHeight: 1.6 }}>
+            <li>Envie o print ou PDF do comprovante recebido.</li>
+            <li>O FinanceBot extrai pagador, valor e data.</li>
+            <li>O extrato fica salvo e o pagamento é confirmado no sistema.</li>
+          </ol>
 
-          {analisando && (
-            <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
-              Analisando extrato com IA...
+          <div
+            style={{
+              display: "flex",
+              gap: 10,
+              alignItems: "flex-start",
+              padding: "12px 14px",
+              borderRadius: "var(--radius-sm)",
+              background: "var(--ui-primary-soft)",
+              borderLeft: "3px solid var(--ui-primary)",
+              marginBottom: 20,
+            }}
+          >
+            <Icon name="alert" size={18} color="var(--ui-primary)" style={{ flexShrink: 0, marginTop: 2 }} />
+            <p style={{ margin: 0, fontSize: 14, color: "var(--ink)", lineHeight: 1.5 }}>
+              Para a baixa automática funcionar, o nome de quem enviou o Pix
+              precisa ser igual ao nome do morador da casa.
             </p>
-          )}
+          </div>
 
-          {extratos.length === 0 && !analisando ? (
-            <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
-              Nenhum extrato registrado para esta casa.
-            </p>
-          ) : (
-            <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-              {extratos.map((e) => (
-                <li key={e.id} style={{
-                  display: "flex", justifyContent: "space-between", alignItems: "center",
-                  padding: "0.75rem 1rem", borderRadius: "8px",
-                  background: "var(--color-bg-card, #1e1e2e)", border: "1px solid var(--color-border)",
-                }}>
-                  <div>
-                    <div style={{ fontWeight: 600, fontSize: "0.9rem" }}>{e.nome_pagador_extrato}</div>
-                    <div style={{ fontSize: "0.78rem", color: "var(--color-text-secondary)" }}>
-                      {e.competencia} · {(e.valor_centavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                      {e.data_pagamento && ` · ${new Date(e.data_pagamento + "T00:00:00").toLocaleDateString("pt-BR")}`}
-                    </div>
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                    <span style={{
-                      padding: "2px 8px", borderRadius: "999px", fontSize: "0.75rem", fontWeight: 600,
-                      background: e.status === "confirmado" ? "#22c55e22" : "#f59e0b22",
-                      color: e.status === "confirmado" ? "#22c55e" : "#f59e0b",
-                    }}>
-                      {e.status === "confirmado" ? "Confirmado" : e.status}
-                    </span>
-                    {e.url && (
-                      <a href={e.url} target="_blank" rel="noopener noreferrer" title="Ver extrato" style={{ color: "var(--color-text-secondary)" }}>
-                        <Icon name="file" />
-                      </a>
-                    )}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
+          <button
+            type="button"
+            className="ui-btn-primary full"
+            onClick={() => {
+              setModalFinanceBot(false);
+              setTimeout(() => inputExtrato.current?.click(), 0);
+            }}
+          >
+            <Icon name="receipt" size={16} />
+            Selecionar extrato
+          </button>
+        </Modal>
       )}
 
       {resultadoAnalise && casas.data && (
