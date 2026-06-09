@@ -1,0 +1,23 @@
+name: keep-warm
+
+# Mantém o backend (Render free tier) acordado para evitar cold start de ~50s.
+# O plano free dorme após ~15 min sem tráfego; este ping a cada 10 min evita isso.
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping health endpoint
+        run: |
+          for i in 1 2 3; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 60 https://controle-casas-api.onrender.com/api/health || echo "000")
+            echo "tentativa $i -> HTTP $code"
+            if [ "$code" = "200" ]; then exit 0; fi
+            sleep 15
+          done
+          echo "health check não retornou 200"
+          exit 1
