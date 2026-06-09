@@ -3,12 +3,9 @@ import {
   api,
   ApiError,
   type Casa,
-  type CobrancaPendente,
-  type MoradorMatch,
   type ResultadoAnalise,
 } from "../lib/api";
 import { Modal } from "./Modal";
-import { Icon } from "./Icon";
 
 interface Props {
   resultado: ResultadoAnalise;

@@ -598,7 +598,7 @@ export function DocumentosPage() {
                     </span>
                     {e.url && (
                       <a href={e.url} target="_blank" rel="noopener noreferrer" title="Ver extrato" style={{ color: "var(--color-text-secondary)" }}>
-                        <Icon name="document" />
+                        <Icon name="file" />
                       </a>
                     )}
                   </div>
