@@ -66,7 +66,10 @@ Destaque: situação geral, itens atrasados, o que precisa de atenção imediata
 Seja conciso (máximo 5 linhas).
 
 {contexto}"""
-    response = await model.generate_content_async(prompt)
+    response = await model.generate_content_async(
+        prompt,
+        generation_config={"temperature": 0.3, "max_output_tokens": 400},
+    )
     return response.text.strip()
 
 
@@ -80,7 +83,10 @@ Dados do período:
 {contexto}
 
 Pergunta: {pergunta}"""
-    response = await model.generate_content_async(prompt)
+    response = await model.generate_content_async(
+        prompt,
+        generation_config={"temperature": 0.3, "max_output_tokens": 500},
+    )
     return response.text.strip()
 
 
@@ -146,7 +152,14 @@ Regras:
         }
     }
 
-    response = await model.generate_content_async([prompt, part_arquivo])
+    response = await model.generate_content_async(
+        [prompt, part_arquivo],
+        generation_config={
+            "temperature": 0.1,
+            "max_output_tokens": 600,
+            "response_mime_type": "application/json",
+        },
+    )
     return _extrair_json(response.text)
 
 
