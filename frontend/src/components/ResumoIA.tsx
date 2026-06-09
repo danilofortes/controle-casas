@@ -45,7 +45,7 @@ export function ResumoIA({ competencia }: Props) {
   }
 
   return (
-    <div className="ui-panel ia-card">
+    <div className="ui-panel ia-card" style={{ marginBottom: 20 }}>
       <div
         className="ui-panel-head"
         style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}
