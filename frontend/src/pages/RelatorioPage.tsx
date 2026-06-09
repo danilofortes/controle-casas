@@ -16,6 +16,7 @@ import { GraficoVisaoMensal } from "../components/GraficoVisaoMensal";
 import { Alert } from "../components/Alert";
 import { ConfirmarExclusao } from "../components/ConfirmarExclusao";
 import { CobrancasCasa } from "../components/CobrancasCasa";
+import { ResumoIA } from "../components/ResumoIA";
 import {
   competenciaAtual,
   deslocarCompetencia,
@@ -184,6 +185,8 @@ export function RelatorioPage() {
           emAberto={t?.total_em_aberto_centavos ?? 0}
         />
       )}
+
+      <ResumoIA competencia={competencia} />
 
       <div className="ui-grid-mid">
         {data && (

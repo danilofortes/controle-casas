@@ -303,6 +303,12 @@ export interface CasaDocumentos {
 
 /* ---------- Tipos de IA / Extratos ---------- */
 
+export interface RespostaIA {
+  resposta: string;
+  competencia: string | null;
+}
+
+
 export interface MoradorMatch {
   morador_id: string;
   morador_nome: string;
