@@ -136,10 +136,6 @@ async def analisar_extrato(
             CobrancaAluguel.pago == False,  # noqa: E712
         )
     ))
-    rateios_db = list(await session.scalars(
-        select(RateioConta)
-        .join(CobrancaAluguel.__class__, False)  # evitar join errado; fazemos direto
-    ))
     # Rateios pendentes do período via conta compartilhada
     from app.models.conta import ContaCompartilhada
     rateios_db = list(await session.scalars(
