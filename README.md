@@ -18,9 +18,11 @@ O rateio "por cabeça" divide água e luz pelo número de moradores de cada casa
 
 ## 👨‍👩‍👧 Sobre o projeto
 
-Meus pais administram aluguéis de casas no mesmo terreno e, por anos, anotavam tudo no caderno. Água e luz chegam num relógio só, o rateio era feito na mão, e era comum perder o fio do que já tinha sido pago ou do que ainda faltava receber.
+Meus pais nunca foram muito de usar cadernos para controlar os aluguéis. Na prática, boa parte da gestão ficava na memória da minha mãe, que sempre foi extremamente organizada financeiramente e tinha facilidade para acompanhar pagamentos, despesas e tudo o que acontecia nas casas.
 
-Fiz o **Casa em Dia** para tirar essa conta do papel e colocar no celular. Não é produto comercial. É a rotina deles virando sistema.
+Por muito tempo isso funcionou bem. Porém, mesmo com organização e experiência, a memória tem seus limites. Hoje, com a facilidade de registrar e analisar informações, manter um histórico dos dados vai muito além de apenas lembrar o que foi pago ou recebido. Ter registros permite acompanhar gastos recorrentes, identificar padrões, planejar despesas futuras e tomar decisões com mais segurança.
+
+O Casa em Dia nasceu justamente dessa realidade. A ideia não era substituir a forma como minha família administrava os aluguéis, mas transformar anos de conhecimento e organização em uma ferramenta que tornasse o controle mais simples, acessível e eficiente para o futuro.
 
 O repositório está público para referência técnica.
 
@@ -98,6 +100,8 @@ controle-casas/
 ---
 
 ## 💡 Como o rateio funciona
+
+O rateio é um sistema que a minha família adotou por conta da forma como administra as coisas: várias casas no mesmo terreno, uma única conta de água e uma de luz, e a necessidade de dividir o custo de forma justa entre todos. Em vez de cada casa ter seu próprio medidor, o valor total da conta é repartido proporcionalmente ao número de moradores de cada casa — incluindo a própria casa administradora, que também entra na divisão.
 
 Água e luz chegam num relógio só. O valor de cada casa é proporcional ao número de moradores: `floor(total × pessoas ÷ total_pessoas)`, em centavos. O que sobra no arredondamento vai pelo método dos maiores restos — a soma sempre fecha com o total. A casa administradora entra no rateio com um número fixo de moradores configurável. O snapshot de moradores é gravado no lançamento, então mudanças futuras não alteram contas antigas.
 
