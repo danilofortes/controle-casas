@@ -24,7 +24,7 @@ def _get_model() -> genai.GenerativeModel:
                 "Adicione a variável de ambiente no arquivo .env."
             )
         genai.configure(api_key=settings.gemini_api_key)
-        _model = genai.GenerativeModel("gemini-1.5-flash")
+        _model = genai.GenerativeModel(settings.gemini_model)
     return _model
 
 
