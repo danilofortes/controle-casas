@@ -82,7 +82,6 @@
   color: var(--white);
   font-weight: 600;
   justify-content: center;
-  box-shadow: 0 4px 14px rgba(207, 92, 54, 0.25);
 }
 
 .app-nav-item.is-cta:hover {

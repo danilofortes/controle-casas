@@ -1180,7 +1180,6 @@ a {
   display: grid;
   place-items: center;
   font-size: 28px;
-  box-shadow: 0 8px 20px rgba(255, 87, 34, 0.4);
   margin-top: -28px;
 }
 
