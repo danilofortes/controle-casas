@@ -23,6 +23,16 @@ class ConfirmarExtratoIn(BaseModel):
     observacao: str | None = None
 
 
+class ExtratoUpdateIn(BaseModel):
+    """Edição manual de um extrato já registrado (todos os campos opcionais)."""
+    competencia: str | None = None
+    nome_pagador_extrato: str | None = None
+    valor_centavos: int | None = None
+    data_pagamento: date | None = None
+    status: str | None = None
+    observacao: str | None = None
+
+
 class ExtratoOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
