@@ -138,6 +138,7 @@ export interface ItemCobranca {
   aluguel_id: string | null;
   rateio_id: string | null;
   conta_id: string | null;
+  recorrencia_id: string | null;
   competencia: string;
   valor_centavos: number;
   valor_formatado: string;
@@ -218,6 +219,7 @@ export interface Aluguel {
   vencimento: string;
   pago: boolean;
   pago_em: string | null;
+  recorrencia_id: string | null;
   valor_formatado: string;
   atrasado: boolean;
 }

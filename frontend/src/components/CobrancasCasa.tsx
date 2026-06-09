@@ -56,6 +56,7 @@ export function CobrancasCasa({
                 {item.pago && item.pago_em
                   ? `Recebido em ${formatarDiaMes(item.pago_em)}`
                   : `Vence ${formatarDiaMes(item.vencimento)}`}
+                {item.recorrencia_id && !item.pago && " · Recorrente"}
               </div>
             </div>
             <div className="li-right">

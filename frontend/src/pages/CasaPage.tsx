@@ -257,6 +257,10 @@ function EdicaoCasa({
           inputMode="decimal"
           placeholder="R$ 0,00"
         />
+        <p className="hint">
+          Ao alterar, cobranças recorrentes não pagas deste mês em diante
+          acompanham o novo valor.
+        </p>
       </div>
       <div className="field">
         <label>Dia de vencimento</label>

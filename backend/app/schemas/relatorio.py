@@ -91,6 +91,8 @@ class ItemCobranca(BaseModel):
     rateio_id: uuid.UUID | None = None
     # Conta de água/luz à qual o rateio pertence (permite excluir a conta toda).
     conta_id: uuid.UUID | None = None
+    # Grupo de recorrência da cobrança de aluguel (None para água/luz ou avulsa).
+    recorrencia_id: uuid.UUID | None = None
     competencia: str
     valor_centavos: int
     vencimento: date

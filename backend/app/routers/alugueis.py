@@ -6,7 +6,9 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from app.deps import SessionDep, UsuarioDep
+from app.domain.competencia import proxima
 from app.models import Casa, CobrancaAluguel
+from app.services.aluguel_recorrencia import propagar_valor_meses_seguintes
 from app.schemas.aluguel import AluguelCreate, AluguelOut, AluguelUpdate
 from app.schemas.conta import PagamentoUpdate
 
@@ -55,17 +57,57 @@ async def registrar(
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Casa não encontrada.")
 
     valor = dados.valor_centavos if dados.valor_centavos is not None else casa.aluguel_centavos
-    vencimento = dados.vencimento or _vencimento_padrao(
-        dados.competencia, casa.dia_vencimento
-    )
+    # Cobranças geradas em lote (repetir_meses > 1) compartilham um grupo de
+    # recorrência, para que alterar o valor depois propague aos meses seguintes.
+    recorrencia_id = uuid.uuid4() if dados.repetir_meses > 1 else None
 
-    aluguel = CobrancaAluguel(
-        casa_id=dados.casa_id,
-        competencia=dados.competencia,
-        valor_centavos=valor,
-        vencimento=vencimento,
-    )
-    session.add(aluguel)
+    primeira: CobrancaAluguel | None = None
+    competencia = dados.competencia
+    for i in range(dados.repetir_meses):
+        # Já existe cobrança nesta competência? No primeiro mês isso é conflito;
+        # nos meses seguintes apenas pulamos para não duplicar.
+        ja_existe = await session.scalar(
+            select(CobrancaAluguel.id).where(
+                CobrancaAluguel.casa_id == dados.casa_id,
+                CobrancaAluguel.competencia == competencia,
+            )
+        )
+        if ja_existe is not None:
+            if i == 0:
+                raise HTTPException(
+                    status.HTTP_409_CONFLICT,
+                    "Já existe uma cobrança de aluguel para esta casa nesta competência.",
+                )
+            competencia = proxima(competencia)
+            continue
+
+        # O vencimento informado só vale para a competência inicial; os meses
+        # seguintes usam o dia de vencimento padrão da casa.
+        vencimento = (
+            dados.vencimento
+            if (i == 0 and dados.vencimento)
+            else _vencimento_padrao(competencia, casa.dia_vencimento)
+        )
+        aluguel = CobrancaAluguel(
+            casa_id=dados.casa_id,
+            competencia=competencia,
+            valor_centavos=valor,
+            vencimento=vencimento,
+            recorrencia_id=recorrencia_id,
+        )
+        session.add(aluguel)
+        if primeira is None:
+            primeira = aluguel
+        competencia = proxima(competencia)
+
+    if primeira is None:
+        # Todas as competências do intervalo já existiam (exceto a primeira, que
+        # teria gerado 409). Caso de borda defensivo.
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            "Já existem cobranças para todas as competências do intervalo.",
+        )
+
     try:
         await session.commit()
     except IntegrityError:
@@ -74,8 +116,8 @@ async def registrar(
             status.HTTP_409_CONFLICT,
             "Já existe uma cobrança de aluguel para esta casa nesta competência.",
         )
-    await session.refresh(aluguel)
-    return aluguel
+    await session.refresh(primeira)
+    return primeira
 
 
 @router.put("/{aluguel_id}", response_model=AluguelOut)
@@ -86,8 +128,18 @@ async def editar(
     _: UsuarioDep,
 ) -> CobrancaAluguel:
     aluguel = await _aluguel_or_404(session, aluguel_id)
-    for campo, valor in dados.model_dump(exclude_unset=True).items():
+    campos = dados.model_dump(exclude_unset=True)
+    for campo, valor in campos.items():
         setattr(aluguel, campo, valor)
+
+    if "valor_centavos" in campos and aluguel.recorrencia_id is not None:
+        await propagar_valor_meses_seguintes(
+            session,
+            recorrencia_id=aluguel.recorrencia_id,
+            competencia_referencia=aluguel.competencia,
+            valor_centavos=aluguel.valor_centavos,
+        )
+
     await session.commit()
     await session.refresh(aluguel)
     return aluguel

@@ -415,6 +415,7 @@ export function AluguelForm({ onSaved }: FormProps) {
   const [competencia, setCompetencia] = useState(competenciaAtual());
   const [valor, setValor] = useState("");
   const [vencimento, setVencimento] = useState("");
+  const [repetir, setRepetir] = useState("1");
   const [etapa, setEtapa] = useState<"form" | "confirmar">("form");
   const [salvando, setSalvando] = useState(false);
   const [tentou, setTentou] = useState(false);
@@ -446,6 +447,8 @@ export function AluguelForm({ onSaved }: FormProps) {
     setEtapa("confirmar");
   }
 
+  const meses = Math.min(24, Math.max(1, parseInt(repetir, 10) || 1));
+
   async function confirmar() {
     setSalvando(true);
     const erros: string[] = [];
@@ -455,6 +458,7 @@ export function AluguelForm({ onSaved }: FormProps) {
         const body: Record<string, unknown> = { casa_id: c.id, competencia };
         if (valor.trim()) body.valor_centavos = paraCentavos(valor);
         if (vencimento) body.vencimento = vencimento;
+        if (meses > 1) body.repetir_meses = meses;
         await api.post("/alugueis", body);
         ok++;
       } catch (e) {
@@ -539,6 +543,18 @@ export function AluguelForm({ onSaved }: FormProps) {
               onChange={(e) => setVencimento(e.target.value)}
             />
           </Field>
+          <Field
+            label="Repetir cobrança"
+            hint="Gera a mesma cobrança nos meses seguintes. Se alterar o valor depois, os meses futuros não pagos acompanham automaticamente."
+          >
+            <select value={repetir} onChange={(e) => setRepetir(e.target.value)}>
+              <option value="1">Só este mês</option>
+              <option value="3">Próximos 3 meses</option>
+              <option value="6">Próximos 6 meses</option>
+              <option value="12">Próximos 12 meses</option>
+              <option value="24">Próximos 24 meses</option>
+            </select>
+          </Field>
           <div className="form-actions">
             <button className="btn" type="submit" disabled={sel.size === 0}>
               Revisar lançamento
@@ -555,8 +571,15 @@ export function AluguelForm({ onSaved }: FormProps) {
                 : selecionadas.map((c) => c.nome).join(", ")}
             </strong>{" "}
             será lançada a cobrança de <strong>{valorTexto}</strong> na
-            competência <strong>{formatarCompetencia(competencia)}</strong>.
-            Você confirma?
+            competência <strong>{formatarCompetencia(competencia)}</strong>
+            {meses > 1 && (
+              <>
+                {" "}
+                e repetida por mais <strong>{meses - 1}</strong>{" "}
+                {meses - 1 === 1 ? "mês" : "meses"}
+              </>
+            )}
+            . Você confirma?
           </Alert>
 
           {tentou && errosCasas.length > 0 && (

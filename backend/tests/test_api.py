@@ -190,6 +190,82 @@ async def test_aluguel_manual_e_conflito(auth_client):
 
 
 @pytest.mark.asyncio
+async def test_aluguel_recorrente_e_propagacao_valor(auth_client):
+    client = auth_client
+    terreno_id = await _criar_terreno(client)
+    casa_id = await _criar_casa(client, terreno_id, "Casa 1", aluguel=80000)
+
+    r = await client.post(
+        "/api/alugueis",
+        json={
+            "casa_id": casa_id,
+            "competencia": "2026-06",
+            "repetir_meses": 3,
+        },
+    )
+    assert r.status_code == 201, r.text
+    grupo = r.json()["recorrencia_id"]
+    assert grupo is not None
+
+    lista = await client.get(
+        "/api/alugueis", params={"casa_id": casa_id}
+    )
+    assert len(lista.json()) == 3
+    assert all(c["recorrencia_id"] == grupo for c in lista.json())
+    assert {c["competencia"] for c in lista.json()} == {
+        "2026-06",
+        "2026-07",
+        "2026-08",
+    }
+
+    jun_id = next(c["id"] for c in lista.json() if c["competencia"] == "2026-06")
+    r_put = await client.put(
+        f"/api/alugueis/{jun_id}",
+        json={"valor_centavos": 90000},
+    )
+    assert r_put.status_code == 200
+
+    atualizado = await client.get(
+        "/api/alugueis", params={"casa_id": casa_id}
+    )
+    por_comp = {c["competencia"]: c["valor_centavos"] for c in atualizado.json()}
+    assert por_comp["2026-06"] == 90000
+    assert por_comp["2026-07"] == 90000
+    assert por_comp["2026-08"] == 90000
+
+
+@pytest.mark.asyncio
+async def test_casa_aluguel_propaga_cobrancas_recorrentes(auth_client):
+    from datetime import date
+
+    client = auth_client
+    terreno_id = await _criar_terreno(client)
+    casa_id = await _criar_casa(client, terreno_id, "Casa 1", aluguel=80000)
+    hoje = date.today()
+    comp = f"{hoje.year:04d}-{hoje.month:02d}"
+
+    await client.post(
+        "/api/alugueis",
+        json={
+            "casa_id": casa_id,
+            "competencia": comp,
+            "repetir_meses": 2,
+        },
+    )
+
+    r = await client.put(
+        f"/api/casas/{casa_id}",
+        json={"aluguel_centavos": 95000},
+    )
+    assert r.status_code == 200
+
+    lista = await client.get(
+        "/api/alugueis", params={"casa_id": casa_id}
+    )
+    assert all(c["valor_centavos"] == 95000 for c in lista.json())
+
+
+@pytest.mark.asyncio
 async def test_relatorio_mensal(auth_client):
     client = auth_client
     terreno_id = await _criar_terreno(client)

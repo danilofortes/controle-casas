@@ -1,10 +1,12 @@
 import uuid
+from datetime import date
 
 from fastapi import APIRouter, HTTPException, Query, status
 from sqlalchemy import func, select
 
 from app.deps import SessionDep, UsuarioDep
 from app.domain.competencia import CompetenciaInvalida, validar_competencia
+from app.services.aluguel_recorrencia import propagar_valor_casa_recorrente
 from app.models import (
     Casa,
     CobrancaAluguel,
@@ -100,6 +102,7 @@ async def cobrancas(
             ItemCobranca(
                 tipo="ALUGUEL",
                 aluguel_id=aluguel.id,
+                recorrencia_id=aluguel.recorrencia_id,
                 competencia=competencia,
                 valor_centavos=aluguel.valor_centavos,
                 vencimento=aluguel.vencimento,
@@ -143,8 +146,21 @@ async def editar(
     payload = dados.model_dump(exclude_unset=True)
     if "terreno_id" in payload and payload["terreno_id"] is not None:
         await _validar_terreno(session, payload["terreno_id"])
+    aluguel_anterior = casa.aluguel_centavos
+    novo_aluguel = payload.get("aluguel_centavos")
     for campo, valor in payload.items():
         setattr(casa, campo, valor)
+
+    if novo_aluguel is not None and novo_aluguel != aluguel_anterior:
+        hoje = date.today()
+        comp_atual = f"{hoje.year:04d}-{hoje.month:02d}"
+        await propagar_valor_casa_recorrente(
+            session,
+            casa_id=casa_id,
+            valor_centavos=novo_aluguel,
+            competencia_min=comp_atual,
+        )
+
     await session.commit()
     await session.refresh(casa)
     return casa

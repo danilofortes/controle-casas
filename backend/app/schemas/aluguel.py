@@ -19,6 +19,15 @@ class AluguelCreate(BaseModel):
         default=None,
         description="Se omitido, usa o dia de vencimento da casa na competência informada.",
     )
+    repetir_meses: int = Field(
+        default=1,
+        ge=1,
+        le=24,
+        description=(
+            "Quantos meses gerar a partir da competência (1 = só este mês). "
+            "Valores > 1 criam cobranças recorrentes vinculadas."
+        ),
+    )
 
 
 class AluguelUpdate(BaseModel):
@@ -36,6 +45,7 @@ class AluguelOut(BaseModel):
     vencimento: date
     pago: bool
     pago_em: date | None
+    recorrencia_id: uuid.UUID | None = None
     created_at: datetime
     updated_at: datetime
 

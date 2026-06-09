@@ -20,5 +20,8 @@ class CobrancaAluguel(Base, TimestampMixin):
     vencimento: Mapped[date]
     pago: Mapped[bool] = mapped_column(default=False)
     pago_em: Mapped[date | None]
+    # Cobranças geradas em lote (recorrência) compartilham este id, permitindo
+    # propagar a alteração de valor para os meses seguintes ainda não pagos.
+    recorrencia_id: Mapped[uuid.UUID | None] = mapped_column(index=True)
 
     casa: Mapped["Casa"] = relationship(back_populates="cobrancas")  # noqa: F821
