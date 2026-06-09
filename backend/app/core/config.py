@@ -46,6 +46,7 @@ class Settings(BaseSettings):
     storage_max_upload_bytes: int = Field(
         default=25_165_824, alias="STORAGE_MAX_UPLOAD_BYTES"
     )
+    gemini_api_key: str | None = Field(default=None, alias="GEMINI_API_KEY")
 
     @property
     def cors_origins_list(self) -> list[str]:
