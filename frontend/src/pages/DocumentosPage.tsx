@@ -70,6 +70,16 @@ export function DocumentosPage() {
   const [extratos, setExtratos] = useState<ExtratoPagamento[]>([]);
   const [erroExtrato, setErroExtrato] = useState<string | null>(null);
   const [modalFinanceBot, setModalFinanceBot] = useState(false);
+  const [editExtrato, setEditExtrato] = useState<ExtratoPagamento | null>(null);
+  const [formExtrato, setFormExtrato] = useState({
+    competencia: "",
+    nome: "",
+    valor: "",
+    data: "",
+    status: "pendente" as ExtratoPagamento["status"],
+    obs: "",
+  });
+  const [excluindoExtrato, setExcluindoExtrato] = useState<ExtratoPagamento | null>(null);
 
   async function carregarExtratos() {
     if (!casaId) return;
@@ -97,6 +107,61 @@ export function DocumentosPage() {
       setErroExtrato(e instanceof ApiError ? e.message : "Falha ao analisar extrato.");
     } finally {
       setAnalisando(false);
+    }
+  }
+
+  function abrirEditarExtrato(ext: ExtratoPagamento) {
+    setErroExtrato(null);
+    setFormExtrato({
+      competencia: ext.competencia,
+      nome: ext.nome_pagador_extrato,
+      valor: (ext.valor_centavos / 100).toFixed(2).replace(".", ","),
+      data: ext.data_pagamento ?? "",
+      status: ext.status,
+      obs: ext.observacao ?? "",
+    });
+    setEditExtrato(ext);
+  }
+
+  async function salvarExtrato() {
+    if (!editExtrato) return;
+    const valorNum = Number(formExtrato.valor.replace(/\./g, "").replace(",", "."));
+    if (!formExtrato.competencia.trim() || !formExtrato.nome.trim() || Number.isNaN(valorNum)) {
+      setErroExtrato("Preencha competência, pagador e um valor válido.");
+      return;
+    }
+    setEnviando(true);
+    setErroExtrato(null);
+    try {
+      await api.put(`/extratos/${editExtrato.id}`, {
+        competencia: formExtrato.competencia.trim(),
+        nome_pagador_extrato: formExtrato.nome.trim(),
+        valor_centavos: Math.round(valorNum * 100),
+        data_pagamento: formExtrato.data || null,
+        status: formExtrato.status,
+        observacao: formExtrato.obs.trim() || null,
+      });
+      setEditExtrato(null);
+      void carregarExtratos();
+    } catch (e) {
+      setErroExtrato(e instanceof ApiError ? e.message : "Falha ao salvar extrato.");
+    } finally {
+      setEnviando(false);
+    }
+  }
+
+  async function excluirExtrato() {
+    if (!excluindoExtrato) return;
+    setEnviando(true);
+    setErroExtrato(null);
+    try {
+      await api.del(`/extratos/${excluindoExtrato.id}`);
+      setExcluindoExtrato(null);
+      void carregarExtratos();
+    } catch (e) {
+      setErroExtrato(e instanceof ApiError ? e.message : "Falha ao excluir extrato.");
+    } finally {
+      setEnviando(false);
     }
   }
 
@@ -629,6 +694,22 @@ export function DocumentosPage() {
                             <Icon name="eye" size={18} />
                           </a>
                         )}
+                        <button
+                          type="button"
+                          className="doc-icon-btn"
+                          aria-label="Editar extrato"
+                          onClick={() => abrirEditarExtrato(e)}
+                        >
+                          <Icon name="edit" size={18} />
+                        </button>
+                        <button
+                          type="button"
+                          className="doc-icon-btn danger"
+                          aria-label="Excluir extrato"
+                          onClick={() => setExcluindoExtrato(e)}
+                        >
+                          <Icon name="trash" size={18} />
+                        </button>
                       </div>
                     </li>
                   ))}
@@ -698,6 +779,91 @@ export function DocumentosPage() {
             Selecionar extrato
           </button>
         </Modal>
+      )}
+
+      {editExtrato && (
+        <Modal title="Editar extrato" onClose={() => !enviando && setEditExtrato(null)}>
+          <div className="field">
+            <label htmlFor="ext-comp">Competência (AAAA-MM)</label>
+            <input
+              id="ext-comp"
+              value={formExtrato.competencia}
+              onChange={(e) => setFormExtrato((f) => ({ ...f, competencia: e.target.value }))}
+              placeholder="2026-06"
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="ext-nome">Pagador</label>
+            <input
+              id="ext-nome"
+              value={formExtrato.nome}
+              onChange={(e) => setFormExtrato((f) => ({ ...f, nome: e.target.value }))}
+              placeholder="Nome de quem pagou"
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="ext-valor">Valor (R$)</label>
+            <input
+              id="ext-valor"
+              inputMode="decimal"
+              value={formExtrato.valor}
+              onChange={(e) => setFormExtrato((f) => ({ ...f, valor: e.target.value }))}
+              placeholder="850,00"
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="ext-data">Data do pagamento</label>
+            <input
+              id="ext-data"
+              type="date"
+              value={formExtrato.data}
+              onChange={(e) => setFormExtrato((f) => ({ ...f, data: e.target.value }))}
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="ext-status">Status</label>
+            <select
+              id="ext-status"
+              value={formExtrato.status}
+              onChange={(e) =>
+                setFormExtrato((f) => ({ ...f, status: e.target.value as ExtratoPagamento["status"] }))
+              }
+            >
+              <option value="pendente">Pendente</option>
+              <option value="confirmado">Confirmado</option>
+              <option value="rejeitado">Rejeitado</option>
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="ext-obs">Observação (opcional)</label>
+            <textarea
+              id="ext-obs"
+              rows={3}
+              value={formExtrato.obs}
+              onChange={(e) => setFormExtrato((f) => ({ ...f, obs: e.target.value }))}
+              placeholder="Detalhes, ajustes..."
+            />
+          </div>
+          {erroExtrato && <p className="error-text">{erroExtrato}</p>}
+          <button
+            type="button"
+            className="ui-btn-primary full"
+            disabled={enviando}
+            onClick={() => void salvarExtrato()}
+          >
+            {enviando ? "Salvando…" : "Salvar alterações"}
+          </button>
+        </Modal>
+      )}
+
+      {excluindoExtrato && (
+        <ConfirmarExclusao
+          titulo="Excluir extrato"
+          descricao={`Excluir o extrato de "${excluindoExtrato.nome_pagador_extrato}"? O arquivo também será removido.`}
+          carregando={enviando}
+          onConfirmar={() => void excluirExtrato()}
+          onCancelar={() => setExcluindoExtrato(null)}
+        />
       )}
 
       {resultadoAnalise && casas.data && (
