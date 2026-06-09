@@ -26,3 +26,5 @@ services:
         sync: false
       - key: SUPABASE_STORAGE_BUCKET
         value: "documentos"
+      - key: GEMINI_API_KEY
+        sync: false
