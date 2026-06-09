@@ -60,3 +60,8 @@ class Casa(Base, TimestampMixin):
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
+    extratos: Mapped[list["ExtratoPagamento"]] = relationship(  # noqa: F821
+        back_populates="casa",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )

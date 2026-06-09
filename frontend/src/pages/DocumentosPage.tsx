@@ -6,15 +6,18 @@ import {
   type Casa,
   type CasaDocumentos,
   type DocumentoPdf,
+  type ExtratoPagamento,
   type FotoCasa,
+  type ResultadoAnalise,
 } from "../lib/api";
+import { ModalConfirmarExtrato } from "../components/ModalConfirmarExtrato";
 import { useApi } from "../lib/useApi";
 import { ConfirmarExclusao } from "../components/ConfirmarExclusao";
 import { Icon } from "../components/Icon";
 import { Modal } from "../components/Modal";
 import { PageHeader } from "../components/PageHeader";
 
-type Aba = "pdfs" | "fotos" | "anotacoes";
+type Aba = "pdfs" | "fotos" | "anotacoes" | "extratos";
 
 function formatarTamanho(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -60,6 +63,41 @@ export function DocumentosPage() {
 
   const inputPdf = useRef<HTMLInputElement>(null);
   const inputFoto = useRef<HTMLInputElement>(null);
+  const inputExtrato = useRef<HTMLInputElement>(null);
+  const [analisando, setAnalisando] = useState(false);
+  const [resultadoAnalise, setResultadoAnalise] = useState<ResultadoAnalise | null>(null);
+  const [fileDataUrl, setFileDataUrl] = useState<string>("");
+  const [extratos, setExtratos] = useState<ExtratoPagamento[]>([]);
+  const [erroExtrato, setErroExtrato] = useState<string | null>(null);
+
+  async function carregarExtratos() {
+    if (!casaId) return;
+    try {
+      const lista = await api.get<ExtratoPagamento[]>(`/extratos?casa_id=${casaId}`);
+      setExtratos(lista);
+    } catch { setExtratos([]); }
+  }
+
+  useEffect(() => { void carregarExtratos(); }, [casaId]);
+
+  async function enviarExtrato(file: File) {
+    setAnalisando(true);
+    setErroExtrato(null);
+    try {
+      const dataUrl = await lerArquivo(file);
+      setFileDataUrl(dataUrl);
+      const comp = new Date().toISOString().slice(0, 7);
+      const resultado = await api.post<ResultadoAnalise>("/ia/analisar-extrato", {
+        file_data_url: dataUrl,
+        competencia: comp,
+      });
+      setResultadoAnalise(resultado);
+    } catch (e) {
+      setErroExtrato(e instanceof ApiError ? e.message : "Falha ao analisar extrato.");
+    } finally {
+      setAnalisando(false);
+    }
+  }
 
   const docs = useApi<CasaDocumentos>(
     () => api.get<CasaDocumentos>(`/casas/${casaId}/documentos`),
@@ -493,6 +531,95 @@ export function DocumentosPage() {
             {modalAnotacao === "nova" ? "Salvar anotação" : "Atualizar anotação"}
           </button>
         </Modal>
+      )}
+
+      {aba === "extratos" && (
+        <section>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+            <h3 style={{ margin: 0, fontSize: "1rem" }}>Extratos de pagamento</h3>
+            <button
+              className="ui-btn-primary"
+              disabled={analisando}
+              onClick={() => inputExtrato.current?.click()}
+            >
+              {analisando ? "Analisando..." : "+ Enviar extrato"}
+            </button>
+            <input
+              ref={inputExtrato}
+              type="file"
+              accept="application/pdf,image/png,image/jpeg,image/webp"
+              hidden
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) void enviarExtrato(f);
+                e.target.value = "";
+              }}
+            />
+          </div>
+
+          {erroExtrato && (
+            <p style={{ color: "var(--color-danger, #ef4444)", fontSize: "0.85rem", marginBottom: "0.75rem" }}>
+              {erroExtrato}
+            </p>
+          )}
+
+          {analisando && (
+            <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
+              Analisando extrato com IA...
+            </p>
+          )}
+
+          {extratos.length === 0 && !analisando ? (
+            <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
+              Nenhum extrato registrado para esta casa.
+            </p>
+          ) : (
+            <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              {extratos.map((e) => (
+                <li key={e.id} style={{
+                  display: "flex", justifyContent: "space-between", alignItems: "center",
+                  padding: "0.75rem 1rem", borderRadius: "8px",
+                  background: "var(--color-bg-card, #1e1e2e)", border: "1px solid var(--color-border)",
+                }}>
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: "0.9rem" }}>{e.nome_pagador_extrato}</div>
+                    <div style={{ fontSize: "0.78rem", color: "var(--color-text-secondary)" }}>
+                      {e.competencia} · {(e.valor_centavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                      {e.data_pagamento && ` · ${new Date(e.data_pagamento + "T00:00:00").toLocaleDateString("pt-BR")}`}
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <span style={{
+                      padding: "2px 8px", borderRadius: "999px", fontSize: "0.75rem", fontWeight: 600,
+                      background: e.status === "confirmado" ? "#22c55e22" : "#f59e0b22",
+                      color: e.status === "confirmado" ? "#22c55e" : "#f59e0b",
+                    }}>
+                      {e.status === "confirmado" ? "Confirmado" : e.status}
+                    </span>
+                    {e.url && (
+                      <a href={e.url} target="_blank" rel="noopener noreferrer" title="Ver extrato" style={{ color: "var(--color-text-secondary)" }}>
+                        <Icon name="document" />
+                      </a>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
+
+      {resultadoAnalise && casas.data && (
+        <ModalConfirmarExtrato
+          resultado={resultadoAnalise}
+          casas={casas.data}
+          fileDataUrl={fileDataUrl}
+          onConfirmado={() => {
+            setResultadoAnalise(null);
+            void carregarExtratos();
+          }}
+          onCancelar={() => setResultadoAnalise(null)}
+        />
       )}
 
       {excluindo && (
