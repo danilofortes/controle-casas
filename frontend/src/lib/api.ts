@@ -300,3 +300,47 @@ export interface CasaDocumentos {
   fotos: FotoCasa[];
   anotacoes: AnotacaoDocumento[];
 }
+
+/* ---------- Tipos de IA / Extratos ---------- */
+
+export interface MoradorMatch {
+  morador_id: string;
+  morador_nome: string;
+  casa_id: string;
+  casa_nome: string;
+  confianca: number;
+}
+
+export interface CobrancaPendente {
+  tipo: string;  // "ALUGUEL" | "AGUA" | "LUZ"
+  id: string;
+  valor_centavos: number;
+  vencimento: string;
+}
+
+export interface ResultadoAnalise {
+  nome_pagador_extraido: string;
+  valor_centavos: number;
+  data_pagamento: string | null;
+  confianca: number;
+  match: MoradorMatch | null;
+  matches_possiveis: MoradorMatch[];
+  aluguel_pendente: CobrancaPendente | null;
+  rateios_pendentes: CobrancaPendente[];
+  acao: "baixar_aluguel" | "baixar_tudo" | "ajuste_manual" | "ambiguo" | "sem_pendencia";
+  mensagem: string;
+  competencia: string;
+}
+
+export interface ExtratoPagamento {
+  id: string;
+  casa_id: string | null;
+  competencia: string;
+  nome_pagador_extrato: string;
+  valor_centavos: number;
+  data_pagamento: string | null;
+  url: string;
+  status: "pendente" | "confirmado" | "rejeitado";
+  observacao: string | null;
+  created_at: string;
+}

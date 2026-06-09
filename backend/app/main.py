@@ -16,6 +16,7 @@ from app.routers import (
     relatorio,
     terrenos,
     ia,
+    extratos,
 )
 
 app = FastAPI(
@@ -52,6 +53,7 @@ api_routers = [
     dashboard.router,
     config.router,
     ia.router,
+    extratos.router,
 ]
 for r in api_routers:
     app.include_router(r, prefix="/api")

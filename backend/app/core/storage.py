@@ -56,6 +56,10 @@ def _decodificar_data_url(url: str) -> tuple[str, bytes]:
     return mime, raw
 
 
+# Alias público para uso externo
+decodificar_data_url = _decodificar_data_url
+
+
 class StorageService:
     def __init__(self) -> None:
         self._base = (settings.supabase_url or "").rstrip("/")
