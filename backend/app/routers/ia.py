@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import re
+import unicodedata
 import uuid
 from datetime import date
+from difflib import SequenceMatcher
 
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import select
@@ -35,6 +37,41 @@ router = APIRouter(tags=["ia"])
 def _competencia_atual() -> str:
     hoje = date.today()
     return f"{hoje.year:04d}-{hoje.month:02d}"
+
+
+def _normalizar_nome(nome: str) -> str:
+    """Minúsculo, sem acentos e sem espaços extras, para comparar nomes."""
+    n = unicodedata.normalize("NFKD", nome or "")
+    n = "".join(c for c in n if not unicodedata.combining(c))
+    return " ".join(n.lower().split())
+
+
+def _score_nome(a: str, b: str) -> float:
+    """Similaridade 0..1 entre dois nomes, tolerante a ordem de sobrenome.
+
+    Combina razão de sequência com sobreposição de tokens (assim "Maria Silva" e
+    "Silva, Maria" pontuam alto mesmo com ordem invertida).
+    """
+    na, nb = _normalizar_nome(a), _normalizar_nome(b)
+    if not na or not nb:
+        return 0.0
+    seq = SequenceMatcher(None, na, nb).ratio()
+    ta, tb = set(na.split()), set(nb.split())
+    overlap = len(ta & tb) / max(len(ta), len(tb)) if ta and tb else 0.0
+    return max(seq, overlap)
+
+
+def _melhor_match_nome(nome_pagador: str, moradores_db) -> tuple[object, float] | None:
+    """Acha o morador cujo nome mais se parece com o do pagador (determinístico)."""
+    melhor = None
+    melhor_score = 0.0
+    for m in moradores_db:
+        s = _score_nome(nome_pagador, m.nome)
+        if s > melhor_score:
+            melhor, melhor_score = m, s
+    if melhor is None:
+        return None
+    return melhor, melhor_score
 
 
 async def _obter_dados_dashboard(session, usuario, competencia: str) -> dict:
@@ -203,9 +240,27 @@ async def analisar_extrato(
         )
 
     match_principal = _build_match(morador_id_match_str) if morador_id_match_str else None
+
+    # Fallback determinístico: LLM costuma errar ao copiar o UUID. Se o id não
+    # resolveu (ou veio nulo), casamos pelo nome do pagador contra os moradores.
+    if match_principal is None and nome_pagador:
+        melhor = _melhor_match_nome(nome_pagador, moradores_db)
+        if melhor:
+            m, score = melhor
+            if score >= 0.7:
+                morador_id_match_str = str(m.id)
+                # A confiança final reflete o quão bem o nome bate, sem rebaixar
+                # uma confiança alta que a IA já tenha dado.
+                confianca = max(confianca, round(score, 2))
+                match_principal = _build_match(morador_id_match_str)
+
     matches_possiveis = [
         mm for mid in matches_possiveis_str if (mm := _build_match(mid)) is not None
     ]
+    if match_principal and not any(
+        mm.morador_id == match_principal.morador_id for mm in matches_possiveis
+    ):
+        matches_possiveis.insert(0, match_principal)
 
     # Se confiança alta e temos match → busca cobranças desta casa
     aluguel_pendente: CobrancaPendente | None = None
