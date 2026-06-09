@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { Icon, type IconName } from "../components/Icon";
 import { PageHeader } from "../components/PageHeader";
 import { Modal } from "../components/Modal";
+import { FinanceBot } from "../components/FinanceBot";
 import {
   AluguelForm,
   CasaForm,
@@ -105,6 +106,7 @@ export function NovoPage() {
       />
 
       <div className="ui-panel">
+        <FinanceBot variant="list" />
         {OPCOES.map((o) => (
           <button
             className="list-item list-item-btn"

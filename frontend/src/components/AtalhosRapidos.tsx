@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Icon, type IconName } from "./Icon";
+import { FinanceBot } from "./FinanceBot";
 import type { FormKey } from "../pages/NovoPage";
 
 interface Atalho {
@@ -36,6 +37,7 @@ export function AtalhosRapidos() {
 
   return (
     <div className="atalhos">
+      <FinanceBot variant="atalho" />
       {ATALHOS.map((a) => {
         const mostrarMais =
           a.label !== "Casa" && a.label !== "Relatório" && a.label !== "Ajustes";
