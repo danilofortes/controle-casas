@@ -266,6 +266,15 @@ export function DocumentosPage() {
               Anotações
               <span className="doc-tab-count">{dados.anotacoes.length}</span>
             </button>
+            <button
+              type="button"
+              className={`doc-tab ${aba === "extratos" ? "active" : ""}`}
+              onClick={() => setAba("extratos")}
+            >
+              <Icon name="receipt" size={18} />
+              Extratos
+              <span className="doc-tab-count">{extratos.length}</span>
+            </button>
           </div>
 
           {aba === "pdfs" && (
