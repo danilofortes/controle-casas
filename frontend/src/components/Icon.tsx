@@ -31,7 +31,8 @@ export type IconName =
   | "landmark"
   | "file"
   | "image"
-  | "note";
+  | "note"
+  | "robot";
 
 interface IconProps {
   name: IconName;
@@ -288,6 +289,18 @@ export function Icon({ name, size = 24, color, style }: IconProps) {
           <line x1="16" y1="13" x2="8" y2="13" />
           <line x1="16" y1="17" x2="8" y2="17" />
           <line x1="10" y1="9" x2="8" y2="9" />
+        </svg>
+      );
+    case "robot":
+      return (
+        <svg {...common}>
+          <rect x="4" y="8" width="16" height="12" rx="2" />
+          <path d="M12 8V4.5" />
+          <circle cx="12" cy="3" r="1.2" />
+          <line x1="9.5" y1="13" x2="9.5" y2="15" />
+          <line x1="14.5" y1="13" x2="14.5" y2="15" />
+          <path d="M2 13v3" />
+          <path d="M22 13v3" />
         </svg>
       );
   }

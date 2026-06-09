@@ -1,11 +1,20 @@
-import { useState, type FormEvent } from "react";
+import { useState, type CSSProperties, type FormEvent } from "react";
 import { api, ApiError, type RespostaIA } from "../lib/api";
 import { useApi } from "../lib/useApi";
 import { Icon } from "./Icon";
+import { MarkdownLite } from "./MarkdownLite";
 
 interface Props {
   competencia: string;
 }
+
+const avatarBase: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  background: "var(--ui-primary-soft)",
+  flexShrink: 0,
+};
 
 /**
  * Card de IA na visão do mês: mostra um resumo gerado pelo Gemini e permite
@@ -52,9 +61,19 @@ export function ResumoIA({ competencia }: Props) {
       >
         <h2
           className="ui-panel-title"
-          style={{ display: "flex", alignItems: "center", gap: 8 }}
+          style={{ display: "flex", alignItems: "center", gap: 10 }}
         >
-          <Icon name="info" size={18} color="var(--ui-primary)" />
+          <span
+            aria-hidden="true"
+            style={{
+              ...avatarBase,
+              width: 30,
+              height: 30,
+              borderRadius: "12px 12px 12px 3px",
+            }}
+          >
+            <Icon name="robot" size={18} color="var(--ui-primary)" />
+          </span>
           Resumo do mês (IA)
         </h2>
         <button
@@ -79,16 +98,10 @@ export function ResumoIA({ competencia }: Props) {
           <p className="error-text" style={{ margin: 0 }}>{resumo.error}</p>
         )}
         {resumo.data && !resumo.loading && (
-          <p
-            style={{
-              margin: 0,
-              whiteSpace: "pre-wrap",
-              lineHeight: 1.6,
-              color: "var(--ink)",
-            }}
-          >
-            {resumo.data.resposta}
-          </p>
+          <MarkdownLite
+            text={resumo.data.resposta}
+            style={{ color: "var(--ink)" }}
+          />
         )}
       </div>
 
@@ -140,20 +153,24 @@ export function ResumoIA({ competencia }: Props) {
           <p className="loading" style={{ marginTop: 10 }}>Consultando a IA…</p>
         )}
         {resposta && !perguntando && (
-          <div
-            style={{
-              marginTop: 12,
-              padding: "12px 14px",
-              borderRadius: "var(--radius-sm)",
-              background: "var(--ui-primary-soft)",
-              borderLeft: "3px solid var(--ui-primary)",
-              whiteSpace: "pre-wrap",
-              lineHeight: 1.6,
-              fontSize: 14,
-              color: "var(--ink)",
-            }}
-          >
-            {resposta}
+          <div style={{ marginTop: 12, display: "flex", gap: 10, alignItems: "flex-start" }}>
+            <span
+              aria-hidden="true"
+              style={{ ...avatarBase, width: 28, height: 28, borderRadius: "12px 12px 12px 3px", marginTop: 2 }}
+            >
+              <Icon name="robot" size={16} color="var(--ui-primary)" />
+            </span>
+            <MarkdownLite
+              text={resposta}
+              style={{
+                flex: 1,
+                padding: "10px 14px",
+                borderRadius: "3px 12px 12px 12px",
+                background: "var(--ui-primary-soft)",
+                fontSize: 14,
+                color: "var(--ink)",
+              }}
+            />
           </div>
         )}
       </form>
