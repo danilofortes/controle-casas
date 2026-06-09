@@ -47,7 +47,6 @@
 
 .ui-app .app-nav-item.is-cta {
   background: var(--ui-primary);
-  box-shadow: 0 4px 14px rgba(207, 92, 54, 0.28);
 }
 
 .ui-app .app-sidebar-card {
@@ -206,7 +205,6 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  box-shadow: 0 4px 14px rgba(207, 92, 54, 0.25);
   white-space: nowrap;
 }
 
@@ -751,13 +749,11 @@
 
 .ui-app .nav-fab {
   background: var(--ui-primary);
-  box-shadow: 0 6px 18px rgba(207, 92, 54, 0.35);
 }
 
 /* Buttons global in app context */
 .ui-app .btn {
   background: var(--ui-primary);
-  box-shadow: 0 4px 14px rgba(207, 92, 54, 0.2);
 }
 
 .ui-app .btn-ghost {
