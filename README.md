@@ -6,6 +6,7 @@
 
 O rateio "por cabeça" divide água e luz pelo número de moradores de cada casa, incluindo a parte da casa administradora.
 
+[![Produção](https://img.shields.io/badge/App-controle--casas.vercel.app-FF5722?logo=vercel&logoColor=white)](https://controle-casas.vercel.app/)
 ![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
 ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0_async-D71F00)
@@ -13,48 +14,47 @@ O rateio "por cabeça" divide água e luz pelo número de moradores de cada casa
 ![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-4169E1?logo=postgresql&logoColor=white)
+![Gemini](https://img.shields.io/badge/Gemini-AI-4285F4?logo=google&logoColor=white)
 
 ---
 
-## 👨‍👩‍👧 Sobre o projeto (pessoal)
+## 👨‍👩‍👧 Sobre o projeto
 
 Projeto pessoal. Meus pais administram aluguéis de casas no mesmo terreno e, por anos, anotavam tudo no caderno. Água e luz chegam num relógio só, o rateio era feito na mão, e era comum perder o fio do que já tinha sido pago ou do que ainda faltava receber.
 
 Fiz o **Casa em Dia** para tirar essa conta do papel e colocar no celular. Não é produto comercial. É a rotina deles virando sistema.
 
-Para rodar de ponta a ponta sem pagar mensalidade, usei só ferramentas gratuitas:
+Tudo roda em planos gratuitos: banco no [Supabase](https://supabase.com), API no [Render](https://render.com), frontend na [Vercel](https://vercel.com) e IA via [Google Gemini](https://ai.google.dev/). Custo fixo zero.
 
-| Camada | Ferramenta | Plano |
-|--------|------------|-------|
-| Banco | [Supabase](https://supabase.com) (PostgreSQL) | Free |
-| API | [Render](https://render.com) | Free |
-| Frontend | [Vercel](https://vercel.com) | Free |
-| Código | Python, FastAPI, React, Vite | Open source |
-
-Hoje o custo fixo é zero. Só entra despesa se algum serviço sair do free tier ou se a família quiser domínio próprio.
-
-O repositório está público para referência técnica. Os dados de produção e as URLs do app ficam privados (uso familiar).
+O repositório está público para referência técnica. Dados de produção e credenciais ficam privados (uso familiar).
 
 ---
 
 ## 🚀 Como funciona em produção
 
-Três peças, banco separado:
+Três peças, banco separado. O frontend é um build estático (Vite) servido pela Vercel — PWA mobile-first, instalável no celular, disponível em [controle-casas.vercel.app](https://controle-casas.vercel.app/). A API FastAPI fica no Render e faz deploy a cada push na `main`. O PostgreSQL é o Supabase, acessado só pelo backend.
 
-- **Frontend:** build estático (Vite) na CDN. PWA mobile-first, instalável no celular.
-- **Backend:** API **FastAPI** no Render, com deploy a cada push na `main`.
-- **Banco:** **PostgreSQL** no Supabase. Só o backend acessa.
+O app fala exclusivamente com a API via `VITE_API_URL`. Nenhuma credencial de banco chega ao navegador.
 
-O app fala só com a API (`VITE_API_URL`). Nada de credencial de banco ou segredo no navegador.
+A autenticação é por senha única da família (JWT HS256). CORS limitado ao domínio do app. Todos os segredos — `APP_SENHA`, `APP_SESSION_SECRET`, `DATABASE_URL`, `GEMINI_API_KEY` — ficam como variável de ambiente no servidor. As tabelas do Supabase têm RLS ativo.
 
-**Segurança em produção:**
+---
 
-- Senha única da família, sessão com **JWT (HS256)**.
-- **CORS** limitado ao domínio do app.
-- Segredos (`APP_SENHA`, `APP_SESSION_SECRET`, `DATABASE_URL`) só em variável de ambiente no servidor. Em produção, a API não sobe sem eles.
-- **RLS** nas tabelas do Supabase.
+## 🤖 Inteligência Artificial (Gemini)
 
-> URLs de produção ficam privadas (uso familiar). Para rodar a sua cópia, veja [Como rodar localmente](#-como-rodar-localmente) e [Deploy](#-deploy).
+O app usa o Google Gemini em três situações práticas. A lógica fica em `backend/app/services/ia.py`, os endpoints em `backend/app/routers/ia.py`.
+
+`GET /ia/resumo` gera um parágrafo com a situação do mês: o que está em aberto, o que está atrasado, o que vence em breve. O componente `ResumoIA.tsx` exibe isso no dashboard.
+
+`POST /ia/pergunta` aceita uma pergunta em texto livre — "quem está atrasado?", "quanto falta receber?" — e responde com base nos dados do período. É o `FinanceBot.tsx`, um chat flutuante no app.
+
+`POST /ia/analisar-extrato` é o mais útil no dia a dia. Recebe um comprovante PIX, extrato bancário ou recibo (PDF, PNG, JPG, WebP) em base64 e usa o Gemini para extrair nome do pagador, valor e data. Depois compara o nome com os moradores cadastrados, tolerando apelidos, abreviações e ordem invertida de sobrenome. Com confiança acima de 80%, o modal de confirmação (`ModalConfirmarExtrato.tsx`) já vem pré-preenchido. O admin só confirma.
+
+Se o Gemini retornar um UUID errado no match do morador — o que acontece — o serviço cai para comparação fuzzy de nomes via `SequenceMatcher`. Funciona na prática.
+
+`POST /ia/confirmar-extrato` fecha o ciclo: salva o arquivo no Supabase Storage, cria o registro de `ExtratoPagamento` e dá baixa nas cobranças selecionadas (aluguel e/ou rateios de água/luz).
+
+Para usar a IA, configure `GEMINI_API_KEY` (obtenha em [ai.google.dev](https://ai.google.dev/)) e `GEMINI_MODEL` (padrão: `gemini-2.0-flash`).
 
 ---
 
@@ -66,48 +66,32 @@ O app fala só com a API (`VITE_API_URL`). Nada de credencial de banco ou segred
     <td align="center"><strong>Casas</strong></td>
   </tr>
   <tr>
-    <td><img src="docs/screenshots/inicio.png" alt="Tela inicial com atalhos, total recebido/a receber, anel de progresso e pendências" width="400" /></td>
-    <td><img src="docs/screenshots/casas.png" alt="Lista de terrenos e casas agrupados, com aluguel e vencimento" width="400" /></td>
+    <td><img src="https://raw.githubusercontent.com/danilofortes/controle-casas/main/docs/screenshots/inicio.png" alt="Tela inicial" width="400" /></td>
+    <td><img src="https://raw.githubusercontent.com/danilofortes/controle-casas/main/docs/screenshots/casas.png" alt="Lista de casas" width="400" /></td>
   </tr>
 </table>
 
 ---
 
-## ✨ Principais funcionalidades
+## ✨ O que o app faz
 
-- Cadastro de terrenos, casas e moradores (idade, adulto, contagem por casa).
-- Cobrança de aluguel por casa e por mês (`YYYY-MM`), com desconto pontual se precisar.
-- Contas de água e luz compartilhadas, rateio "por cabeça", incluindo a **casa administradora** (nº de moradores fixo e configurável).
+- Cadastro de terrenos, casas e moradores (parentesco, sexo, idade, contagem por casa).
+- Cobrança de aluguel por mês (`YYYY-MM`), com desconto pontual e recorrência automática.
+- Contas de água e luz compartilhadas, rateio "por cabeça", incluindo a casa administradora.
 - Despesas por categoria (manutenção, reparo, imposto, outros).
-- Relatório mensal: totais, quebra por tipo (aluguel, água, luz, despesas), visão por casa e visão da administradora.
 - Marcar aluguéis e rateios como pagos/recebidos.
-- Pendências e aviso do que vence em até 3 dias.
-- Login com senha compartilhada (**JWT HS256**).
-- PWA instalável no celular.
-- Documentos por casa: PDFs, fotos e anotações (Storage + Postgres).
+- Upload de comprovante, análise por IA e baixa automática das cobranças.
+- Aviso de pendências e do que vence em até 3 dias.
+- Resumo automático do mês e chat com os dados via Gemini.
+- Relatório mensal com visão por casa e por tipo (aluguel, água, luz, despesas).
+- Documentos por casa: PDFs, fotos e anotações (Supabase Storage).
+- PWA instalável no celular, login por senha compartilhada (JWT HS256).
 
 ---
 
-## 🧰 Stack tecnológico
+## 🧰 Stack
 
-**Backend**
-- Python **3.12+**
-- **FastAPI** + **Uvicorn**
-- **SQLAlchemy 2.0** (async) + **asyncpg**
-- **Alembic** (migrations)
-- **Pydantic v2** + **pydantic-settings**
-- **PyJWT** (HS256)
-
-**Frontend**
-- **React 18** + **Vite 5** + **TypeScript**
-- **React Router DOM**
-- **CSS puro** (mobile-first). Fonte **Poppins**, destaques **Inter Bold**, ícones **SVG**, cor **`#FF5722`**
-- PWA (ícones com **sharp**)
-
-**Banco & Deploy**
-- **PostgreSQL** no **Supabase** (RLS; cascade com `ondelete=CASCADE` + `passive_deletes`)
-- **Render** (API, auto-deploy na `main`)
-- **Vercel** (frontend, deploy manual via CLI)
+Backend em Python 3.12+ com FastAPI, SQLAlchemy 2.0 async, Alembic, Pydantic v2, PyJWT e google-generativeai. Frontend em React 18 + Vite 5 + TypeScript, CSS puro (mobile-first), React Router DOM, PWA com sharp. Banco PostgreSQL no Supabase com RLS.
 
 ---
 
@@ -115,134 +99,80 @@ O app fala só com a API (`VITE_API_URL`). Nada de credencial de banco ou segred
 
 ```
 controle-casas/
-├─ backend/                 # API FastAPI
+├─ backend/
 │  ├─ app/
 │  │  ├─ main.py            # app FastAPI, CORS, /api/health
 │  │  ├─ deps.py            # dependências (sessão de DB, auth Bearer)
-│  │  ├─ core/              # config, db (engine async), security (JWT)
+│  │  ├─ core/              # config, db, security (JWT), storage
 │  │  ├─ domain/            # lógica pura: rateio, money, competencia
-│  │  ├─ models/            # modelos SQLAlchemy
-│  │  ├─ schemas/           # schemas Pydantic
+│  │  ├─ models/            # aluguel, casa, conta, despesa, documento,
+│  │  │                     #   extrato, morador, terreno, configuracao
+│  │  ├─ schemas/           # schemas Pydantic (inclui ia.py e extrato.py)
 │  │  ├─ routers/           # auth, terrenos, casas, moradores, contas,
 │  │  │                     #   rateios, alugueis, despesas, relatorio,
-│  │  │                     #   dashboard, config
-│  │  └─ services/          # consultas auxiliares (ex.: nº de moradores)
-│  ├─ alembic/              # migrations (env.py + versions/)
-│  ├─ scripts/seed.py       # seed opcional de exemplo
+│  │  │                     #   dashboard, documentos, extratos, ia, config
+│  │  └─ services/          # ia.py (Gemini), aluguel_recorrencia, config, moradores
+│  ├─ alembic/              # migrations 0001–0011
+│  ├─ scripts/              # seed.py, setup_supabase_storage.py
 │  ├─ tests/                # pytest (domínio + API)
 │  ├─ requirements.txt
-│  ├─ pyproject.toml
 │  └─ .env.example
-├─ frontend/                # App React + Vite
+├─ frontend/
 │  ├─ src/
-│  │  ├─ auth/              # AuthContext (sessão/JWT)
-│  │  ├─ components/        # UI (AppShell, BottomNav, Modal, forms, ...)
-│  │  ├─ pages/             # Login, Dashboard, Casas, Casa, Novo, Relatorio, Ajustes
-│  │  ├─ lib/               # api, format, useApi, pwa
-│  │  ├─ styles/            # global.css
-│  │  ├─ App.tsx
-│  │  └─ main.tsx
-│  ├─ package.json
-│  ├─ vercel.json
+│  │  ├─ auth/              # AuthContext
+│  │  ├─ components/        # FinanceBot, ResumoIA, ModalConfirmarExtrato,
+│  │  │                     #   MarkdownLite, gráficos, AppSidebar, BottomNav...
+│  │  ├─ pages/             # Login, Dashboard, Casas, Casa, Documentos,
+│  │  │                     #   Novo, Relatorio, Ajustes
+│  │  ├─ lib/               # api, format, useApi, pwa, morador
+│  │  └─ styles/            # global.css, app-layout.css, theme.css, ui-system.css
+│  ├─ public/               # PWA icons, manifest, sw.js
 │  └─ .env.example
-├─ render.yaml              # Blueprint do Render (serviço da API)
-└─ specs/                   # requisitos do projeto
+├─ specs/                   # requisitos e design
+├─ render.yaml
+└─ .github/workflows/keep-warm.yml
 ```
 
 ---
 
-## 💡 Conceitos de domínio
+## 💡 Como o rateio funciona
 
-### Divisão "por cabeça" (rateio)
+Água e luz chegam num relógio só. O valor de cada casa é proporcional ao número de moradores: `floor(total × pessoas ÷ total_pessoas)`, em centavos. O que sobra no arredondamento vai pelo método dos maiores restos — a soma sempre fecha com o total. A casa administradora entra no rateio com um número fixo de moradores configurável. O snapshot de moradores é gravado no lançamento, então mudanças futuras não alteram contas antigas.
 
-Água e luz chegam num relógio só do terreno. O valor de cada casa segue o número de moradores:
+> Dinheiro sempre em centavos (int). Sem float.
 
-- Cálculo: `floor(total × pessoas ÷ total_de_pessoas)`, em **centavos**.
-- Centavos que sobram no arredondamento vão pelo **método dos maiores restos**, de forma fixa. A soma das fatias bate com o total.
-- A **casa administradora** entra no rateio com nº de moradores fixo (`moradores_administradora`).
-- O nº de pessoas fica gravado no lançamento (snapshot). Se alguém mudar de casa depois, a conta antiga não muda.
-
-> Dinheiro sempre em **centavos (int)**. Sem `float`.
-
-### Cobranças e competência
-
-Aluguel e conta compartilhada pertencem a uma **competência** `YYYY-MM`. Dá para marcar como pago/recebido.
-
-### Relatório mensal
-
-Por competência, o relatório mostra:
-
-- Totais do mês.
-- Quebra por tipo: aluguel, água, luz, despesas.
-- Visão por casa.
-- Visão da casa administradora (parcela de água/luz que ela paga).
+Aluguel e contas pertencem a uma competência `YYYY-MM`. Aluguéis podem ter recorrência automática. O relatório mensal mostra tudo por competência: totais, quebra por tipo e visão por casa.
 
 ---
 
-## 🚀 Como rodar localmente
+## 🚀 Rodando localmente
 
-### Pré-requisitos
-
-- **Python 3.12+**
-- **Node.js** (18+) e **npm**
-- **PostgreSQL** (Supabase ou local). Nos **testes**, não precisa: roda com SQLite em memória.
+Você precisa de Python 3.12+, Node.js 18+ e um banco PostgreSQL (Supabase ou local). Para os testes, não precisa de banco — roda com SQLite em memória. A `GEMINI_API_KEY` é necessária só se for usar os endpoints de IA.
 
 ### Backend
 
-Comandos em **Windows / PowerShell**. No macOS/Linux, use `source .venv/bin/activate` no lugar do passo 1.
+No macOS/Linux troque `..venv\Scripts\Activate.ps1` por `source .venv/bin/activate`.
 
 ```powershell
 cd backend
-
-# 1) ambiente virtual
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-
-# 2) dependências
-python -m pip install --upgrade pip
 pip install -r requirements.txt
-
-# 3) variáveis de ambiente
 copy .env.example .env
-# edite o .env e preencha DATABASE_URL, APP_SENHA e APP_SESSION_SECRET
-
-# 4) migrations (cria as tabelas)
+# preencha DATABASE_URL, APP_SENHA, APP_SESSION_SECRET e GEMINI_API_KEY
 alembic upgrade head
-
-# 5) (opcional) dados de exemplo
-python -m scripts.seed
-
-# 6) subir a API
 uvicorn app.main:app --reload
 ```
 
-- Swagger: http://127.0.0.1:8000/docs
-- Health check: http://127.0.0.1:8000/api/health
-
-**Autenticação:** `POST /api/auth/login` com `{ "senha": "<APP_SENHA>" }`, pegue o `access_token` e mande nas rotas em `Authorization: Bearer <token>` (ou **Authorize** no Swagger).
+Swagger em http://127.0.0.1:8000/docs. Para autenticar, faça `POST /api/auth/login` com `{ "senha": "<APP_SENHA>" }` e use o `access_token` no header `Authorization: Bearer <token>`.
 
 ### Frontend
 
 ```bash
 cd frontend
-
-# 1) dependências
 npm install
-
-# 2) variáveis de ambiente
-cp .env.example .env
-# defina VITE_API_URL (ex.: http://127.0.0.1:8000)
-
-# 3) modo desenvolvimento
+cp .env.example .env   # defina VITE_API_URL=http://127.0.0.1:8000
 npm run dev
-```
-
-Outros scripts:
-
-```bash
-npm run build     # type-check (tsc -b) + build de produção (vite build)
-npm run preview   # serve localmente o build de produção
-npm run icons     # regenera os ícones do PWA (usa sharp)
 ```
 
 ---
@@ -251,50 +181,45 @@ npm run icons     # regenera os ícones do PWA (usa sharp)
 
 ### Backend (`backend/.env`)
 
-| Variável | Obrigatória | Descrição |
-|---|---|---|
-| `DATABASE_URL` | Sim | PostgreSQL com **asyncpg** (ex.: `postgresql+asyncpg://USUARIO:SENHA@HOST:PORTA/postgres`). Porta 5432 direta ou 6543 (pooler Supabase). |
-| `APP_SENHA` | Sim | Senha única de acesso. |
-| `APP_SESSION_SECRET` | Sim | Segredo longo para assinar o JWT (HS256). |
-| `APP_SESSION_EXPIRE_MINUTES` | Não | Validade do token em minutos (padrão: `43200`, 30 dias). |
-| `APP_CORS_ORIGINS` | Não | Origens CORS, separadas por vírgula (padrão: `*`). |
-
-> No Render, `PYTHON_VERSION` = `3.12.4`.
+| Variável | Descrição |
+|---|---|
+| `DATABASE_URL` | PostgreSQL com asyncpg. Ex.: `postgresql+asyncpg://user:pass@host:5432/postgres` |
+| `APP_SENHA` | Senha única de acesso |
+| `APP_SESSION_SECRET` | Segredo para assinar o JWT |
+| `GEMINI_API_KEY` | Chave do Google AI Studio (necessária para os endpoints de IA) |
+| `GEMINI_MODEL` | Modelo a usar (padrão: `gemini-2.0-flash`) |
+| `SUPABASE_URL` | URL do projeto Supabase (necessária para Storage) |
+| `SUPABASE_SERVICE_KEY` | Chave de serviço do Supabase (necessária para Storage) |
+| `APP_SESSION_EXPIRE_MINUTES` | Validade do token em minutos (padrão: 43200 = 30 dias) |
+| `APP_CORS_ORIGINS` | Origens CORS separadas por vírgula (padrão: `*`) |
 
 ### Frontend (`frontend/.env`)
 
-| Variável | Obrigatória | Descrição |
-|---|---|---|
-| `VITE_API_URL` | Não | URL da API. Se vazio, usa o padrão do código. |
+| Variável | Descrição |
+|---|---|
+| `VITE_API_URL` | URL da API (se vazio, usa o padrão do código) |
 
 ---
 
-## 🗃️ Migrations (Alembic)
+## 🗃️ Migrations
 
-Em `backend/`, com `DATABASE_URL` configurada:
+O Alembic gerencia as migrations numeradas de `0001` a `0011`, cobrindo schema inicial, documentos por casa, parentesco e sexo de moradores, extrato de pagamento com RLS e recorrência de aluguel.
 
 ```bash
-# aplicar todas as migrations pendentes
-alembic upgrade head
-
-# criar uma nova migration a partir dos modelos (precisa de um banco acessível)
-alembic revision --autogenerate -m "descricao da mudanca"
-
-# voltar uma migration
-alembic downgrade -1
+alembic upgrade head        # aplica tudo
+alembic downgrade -1        # volta uma
+alembic revision --autogenerate -m "descricao"  # cria nova migration
 ```
-
-Migrations versionadas: schema inicial, administradora, morador (adulto/idade), **RLS** (`0005_enable_rls`), **cascade deletes** (`0006_cascade_deletes`).
 
 ---
 
 ## 🧪 Testes
 
-Testes em `backend/tests/` com **pytest**. Domínio (rateio) não usa banco. API usa **SQLite em memória** (`aiosqlite`).
+Os testes de domínio (rateio, competência, dinheiro) não precisam de banco. Os de API usam SQLite em memória via `aiosqlite`.
 
 ```bash
 cd backend
-pip install -e ".[dev]"   # pytest, pytest-asyncio, httpx, aiosqlite
+pip install -e ".[dev]"
 pytest
 ```
 
@@ -302,31 +227,19 @@ pytest
 
 ## 📦 Deploy
 
-### API (Render)
+A API fica no Render via [`render.yaml`](render.yaml). O comando de start é `alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT`, então as migrations rodam automaticamente no deploy. Configure os segredos no painel do Render. Para o Storage funcionar, crie o bucket `documentos` no Supabase ou rode `python -m scripts.setup_supabase_storage`.
 
-[`render.yaml`](render.yaml), serviço `controle-casas-api`:
-
-- **Build:** `pip install -r requirements.txt`
-- **Start:** `alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-- **Health check:** `/api/health`
-- **Auto-deploy:** push na `main`
-- Segredos no painel do Render: `DATABASE_URL`, `APP_SENHA`, `APP_SESSION_SECRET`, `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`.
-- Migração `0007_documentos` cria tabelas de PDFs, fotos e anotações. Arquivos vão para bucket `documentos` no Supabase Storage (crie no painel ou `python -m scripts.setup_supabase_storage`).
-- Nada versionado no Git.
-
-### Frontend (Vercel, manual)
-
-A Vercel não está ligada ao Git. Deploy manual em `frontend/`:
+O frontend vai para a Vercel manualmente (não está conectado ao Git):
 
 ```bash
 cd frontend
 npx vercel deploy --prod --yes
 ```
 
-SPA via [`frontend/vercel.json`](frontend/vercel.json) (rewrite para `index.html`). Configure `VITE_API_URL` na Vercel.
+Configure `VITE_API_URL` nas variáveis de ambiente da Vercel.
 
 ---
 
-## 📄 Licença / nota final
+## 📄 Licença
 
-Projeto de uso pessoal e familiar. Detalhes em [Sobre o projeto (pessoal)](#-sobre-o-projeto-pessoal). Sem licença pública definida.
+Projeto de uso pessoal e familiar. Sem licença pública definida.
